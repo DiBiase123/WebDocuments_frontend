@@ -73,8 +73,8 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -85,47 +85,22 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.lock_outline,
-                    size: 64,
-                    color: Colors.white70,
+                    size: 96,
+                    color: theme.colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'WebDocuments',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Text('WebDocuments', style: theme.textTheme.titleLarge),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Area riservata',
-                    style: TextStyle(fontSize: 14, color: Colors.white54),
-                  ),
+                  Text('Area riservata', style: theme.textTheme.bodySmall),
                   const SizedBox(height: 40),
                   TextFormField(
                     controller: _usernameController,
                     textInputAction: TextInputAction.next,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Username',
-                      labelStyle: const TextStyle(color: Colors.white54),
-                      prefixIcon: const Icon(
-                        Icons.person_outline,
-                        color: Colors.white54,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white.withAlpha(25),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.orange),
-                      ),
+                      prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty
                         ? 'Inserisci username'
@@ -137,34 +112,18 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _login(),
-                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: const TextStyle(color: Colors.white54),
-                      prefixIcon: const Icon(
-                        Icons.lock_outline,
-                        color: Colors.white54,
-                      ),
+                      prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_off
                               : Icons.visibility,
-                          color: Colors.white54,
                         ),
                         onPressed: () => setState(
                           () => _obscurePassword = !_obscurePassword,
                         ),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white.withAlpha(25),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.orange),
                       ),
                     ),
                     validator: (v) =>
@@ -184,29 +143,13 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
                       child: _isLoading
                           ? const SizedBox(
                               height: 24,
                               width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text(
-                              'ENTRA',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                          : const Text('ENTRA'),
                     ),
                   ),
                 ],

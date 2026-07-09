@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/navigation/go_router.dart';
+import 'package:webdocuments/theme/app_theme.dart';
 
 void main() => runApp(const WebDocumentsApp());
 
@@ -10,10 +11,7 @@ class WebDocumentsApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'WebDocuments',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: const Color(0xFF16213E),
-      ),
+      theme: AppTheme.darkTheme,
       routerConfig: goRouter,
     );
   }

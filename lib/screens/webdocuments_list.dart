@@ -108,10 +108,9 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF16213E),
         title: const Text('WebDocuments'),
         centerTitle: true,
         actions: [
@@ -135,7 +134,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.orange))
+          ? const Center(child: CircularProgressIndicator())
           : _error != null
           ? Center(
               child: Column(
@@ -154,10 +153,10 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
               ),
             )
           : _documents.isEmpty
-          ? const Center(
-              child: SelectableText(
+          ? Center(
+              child: Text(
                 'Nessun documento',
-                style: TextStyle(color: Colors.white54, fontSize: 16),
+                style: theme.textTheme.bodyMedium,
               ),
             )
           : ListView.builder(
@@ -166,48 +165,93 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
               itemBuilder: (context, index) {
                 final doc = _documents[index];
                 return Card(
-                  color: Colors.white.withAlpha(15),
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    title: SelectableText(
-                      'Nome file: ${doc['fileName'] ?? ''}',
-                      style: const TextStyle(color: Colors.amber, fontSize: 14),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  margin: const EdgeInsets.only(bottom: 14),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SelectableText(
-                          'Descrizione: ${doc['description'] ?? ''}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        SelectableText(
-                          'Ente: ${doc['ente'] ?? ''}',
-                          style: const TextStyle(color: Colors.white54),
-                        ),
-                        SelectableText(
-                          'Data: ${_formatDate(doc['documentDate'] ?? '')}',
-                          style: const TextStyle(color: Colors.white54),
-                        ),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.visibility,
-                            color: Colors.cyanAccent,
+                        // Contenuto principale
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Titolo: Nome file (grande)
+                              Text(
+                                doc['fileName'] ?? '',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontSize: 22,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              // Descrizione
+                              Text(
+                                doc['description'] ?? '',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 10),
+                              // Data e Badge Ente
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    size: 16,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _formatDate(doc['documentDate'] ?? ''),
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFFF08A5D,
+                                      ).withAlpha(50),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      doc['ente'] ?? '',
+                                      style: const TextStyle(
+                                        color: Color(0xFFF08A5D),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          onPressed: () => _openPdf(doc),
-                          tooltip: 'Anteprima',
                         ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.download,
-                            color: Colors.greenAccent,
-                          ),
-                          onPressed: () => _downloadPdf(doc),
-                          tooltip: 'Download',
+                        const SizedBox(width: 8),
+                        // Icone azione
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.visibility,
+                                color: Colors.cyanAccent,
+                              ),
+                              onPressed: () => _openPdf(doc),
+                              tooltip: 'Anteprima',
+                            ),
+                            const SizedBox(height: 4),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.download,
+                                color: Colors.greenAccent,
+                              ),
+                              onPressed: () => _downloadPdf(doc),
+                              tooltip: 'Download',
+                            ),
+                          ],
                         ),
                       ],
                     ),

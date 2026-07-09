@@ -203,19 +203,23 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF16213E),
         title: const Text('Dashboard WebDocuments'),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.list),
+          onPressed: () => Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const WebDocumentsList()),
+          ),
+          tooltip: 'Vai alla lista',
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: () => Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const WebDocumentsList()),
-            ),
-            tooltip: 'Vai alla lista',
+            icon: const Icon(Icons.add),
+            onPressed: _uploadDocument,
+            tooltip: 'Carica documento',
           ),
           IconButton(
             icon: const Icon(Icons.logout),
@@ -228,21 +232,17 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
             },
             tooltip: 'Logout',
           ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _uploadDocument,
-            tooltip: 'Carica documento',
-          ),
         ],
+        toolbarHeight: 70,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.orange))
+          ? const Center(child: CircularProgressIndicator())
           : _error != null
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SelectableText(
+                  Text(
                     _error!,
                     style: const TextStyle(color: Colors.redAccent),
                   ),
@@ -259,16 +259,13 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.folder_open,
                     size: 64,
-                    color: Colors.white54,
+                    color: theme.colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
-                  const SelectableText(
-                    'Nessun documento',
-                    style: TextStyle(color: Colors.white54, fontSize: 16),
-                  ),
+                  Text('Nessun documento', style: theme.textTheme.bodyMedium),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: _uploadDocument,
@@ -284,29 +281,28 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
               itemBuilder: (context, index) {
                 final doc = _documents[index];
                 return Card(
-                  color: Colors.white.withAlpha(15),
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
-                    title: SelectableText(
+                    title: Text(
                       doc['description'] ?? '',
-                      style: const TextStyle(color: Colors.white),
+                      style: theme.textTheme.bodyMedium,
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SelectableText(
+                        Text(
                           'Ente: ${doc['ente'] ?? ''}',
-                          style: const TextStyle(color: Colors.white54),
+                          style: theme.textTheme.bodySmall,
                         ),
-                        SelectableText(
+                        Text(
                           'Data: ${_formatDate(doc['documentDate'] ?? '')}',
-                          style: const TextStyle(color: Colors.white54),
+                          style: theme.textTheme.bodySmall,
                         ),
-                        SelectableText(
+                        Text(
                           'File: ${doc['fileName'] ?? ''}',
-                          style: const TextStyle(
-                            color: Colors.amber,
-                            fontSize: 12,
+                          style: TextStyle(
+                            color: Colors.amber.shade200,
+                            fontSize: 13,
                           ),
                         ),
                       ],
