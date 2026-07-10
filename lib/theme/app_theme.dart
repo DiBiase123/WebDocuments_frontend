@@ -20,6 +20,8 @@ class AppTheme {
           color: Color(0xFFEEEEEE),
         ),
         iconTheme: IconThemeData(color: Color(0xFFE43F5A), size: 36),
+        toolbarHeight: 80,
+        titleSpacing: 20,
       ),
       textTheme: const TextTheme(
         bodyLarge: TextStyle(fontSize: 22, color: Color(0xFFEEEEEE)),
