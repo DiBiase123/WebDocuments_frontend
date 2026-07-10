@@ -20,37 +20,51 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: SizedBox(
-        height: 44,
-        child: TextField(
-          controller: searchController,
-          onChanged: onSearch,
-          style: const TextStyle(color: Colors.white, fontSize: 18),
-          decoration: InputDecoration(
-            hintText: 'Cerca...',
-            hintStyle: const TextStyle(color: Colors.white38, fontSize: 18),
-            prefixIcon: const Icon(
-              Icons.search,
-              color: Colors.white54,
-              size: 28,
-            ),
-            filled: true,
-            fillColor: Colors.white.withAlpha(20),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 10,
+      title: Row(
+        children: [
+          const Text('WebDocuments'),
+          const SizedBox(width: 16),
+          Expanded(
+            child: SizedBox(
+              height: 44,
+              child: TextField(
+                controller: searchController,
+                onChanged: onSearch,
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+                decoration: InputDecoration(
+                  hintText: 'Cerca...',
+                  hintStyle: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 18,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: Colors.white54,
+                    size: 28,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white.withAlpha(20),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
-      centerTitle: true,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: IconButton(
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: onUpload,
+          tooltip: 'Carica',
+        ),
+        IconButton(
           icon: const Icon(Icons.list),
           onPressed: () {
             Navigator.of(context).pushReplacement(
@@ -59,18 +73,8 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
           tooltip: 'Lista',
         ),
-      ),
-      actions: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: onUpload,
-            tooltip: 'Carica',
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8, right: 24),
+          padding: const EdgeInsets.only(right: 12),
           child: IconButton(
             icon: const Icon(Icons.power_settings_new),
             onPressed: () async {

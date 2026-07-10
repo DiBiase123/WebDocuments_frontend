@@ -50,22 +50,19 @@ class ListAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       actions: [
         if (isAdmin)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: IconButton(
-              icon: const Icon(Icons.dashboard),
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (_) => const WebDocumentsDashboard(),
-                  ),
-                );
-              },
-              tooltip: 'Dashboard',
-            ),
+          IconButton(
+            icon: const Icon(Icons.dashboard),
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => const WebDocumentsDashboard(),
+                ),
+              );
+            },
+            tooltip: 'Dashboard',
           ),
         Padding(
-          padding: const EdgeInsets.only(left: 8, right: 24),
+          padding: const EdgeInsets.only(right: 12),
           child: IconButton(
             icon: const Icon(Icons.power_settings_new),
             onPressed: () async {

@@ -12,7 +12,7 @@ class WebDocumentsLogin extends StatefulWidget {
 }
 
 class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _service = WebDocumentsService();
@@ -22,9 +22,16 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegex.hasMatch(email);
   }
 
   Future<void> _login() async {
@@ -35,7 +42,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
     });
     try {
       final data = await _service.login(
-        _usernameController.text.trim(),
+        _emailController.text.trim(),
         _passwordController.text,
       );
       if (!mounted) return;
@@ -87,7 +94,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                 children: [
                   Icon(
                     Icons.lock_outline,
-                    size: 96,
+                    size: 80,
                     color: theme.colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
@@ -96,15 +103,20 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                   Text('Area riservata', style: theme.textTheme.bodySmall),
                   const SizedBox(height: 40),
                   TextFormField(
-                    controller: _usernameController,
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
-                      labelText: 'Username',
-                      prefixIcon: Icon(Icons.person_outline),
+                      labelText: 'E-mail',
+                      prefixIcon: Icon(Icons.email_outlined),
                     ),
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Inserisci username'
-                        : null,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty)
+                        return 'Inserisci e-mail';
+                      if (!_isValidEmail(v.trim()))
+                        return 'Formato e-mail errato';
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -135,7 +147,10 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Text(
                         _errorMessage!,
-                        style: const TextStyle(color: Colors.redAccent),
+                        style: const TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                   SizedBox(

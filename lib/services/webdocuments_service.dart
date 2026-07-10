@@ -201,9 +201,12 @@ class WebDocumentsService {
         return data;
       }
       throw Exception(response.data['message'] ?? 'Login fallito');
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? 'Riprovare server occupato';
+      throw Exception(msg);
     } catch (e) {
       debugPrint('❌ login error: $e');
-      throw Exception('Errore di connessione');
+      throw Exception('Riprovare server occupato');
     }
   }
 
