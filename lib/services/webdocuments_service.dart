@@ -61,7 +61,7 @@ class WebDocumentsService {
   Future<Map<String, dynamic>> createDocument({
     required String description,
     required String documentDate,
-    required String ente,
+    required String enteId,
     required List<int> fileBytes,
     required String fileName,
   }) async {
@@ -72,7 +72,7 @@ class WebDocumentsService {
         data: {
           'description': description,
           'documentDate': documentDate,
-          'ente': ente,
+          'enteId': enteId,
           'fileName': fileName,
           'fileData': base64.encode(fileBytes),
         },
@@ -92,7 +92,7 @@ class WebDocumentsService {
     required String id,
     String? description,
     String? documentDate,
-    String? ente,
+    String? enteId,
   }) async {
     try {
       final headers = await _getHeaders();
@@ -103,8 +103,8 @@ class WebDocumentsService {
       if (documentDate != null) {
         body['documentDate'] = documentDate;
       }
-      if (ente != null) {
-        body['ente'] = ente;
+      if (enteId != null) {
+        body['enteId'] = enteId;
       }
       final response = await _dio.put(
         '/api/webdocuments/$id',
@@ -133,6 +133,54 @@ class WebDocumentsService {
     } catch (e) {
       debugPrint('❌ deleteDocument error: $e');
       throw Exception('Errore nell\'eliminazione documento');
+    }
+  }
+
+  Future<List<dynamic>> getEnti() async {
+    try {
+      final response = await _dio.get(
+        '/api/enti',
+        options: Options(headers: await _getHeaders()),
+      );
+      if (response.data['success'] == true) {
+        return response.data['data'] ?? [];
+      }
+      throw Exception('Errore nel caricamento enti');
+    } catch (e) {
+      debugPrint('❌ getEnti error: $e');
+      throw Exception('Errore nel caricamento enti');
+    }
+  }
+
+  Future<Map<String, dynamic>> createEnte(String nome) async {
+    try {
+      final response = await _dio.post(
+        '/api/enti',
+        data: {'nome': nome},
+        options: Options(headers: await _getHeaders()),
+      );
+      if (response.data['success'] == true) {
+        return response.data['data'];
+      }
+      throw Exception(response.data['message'] ?? 'Errore');
+    } catch (e) {
+      debugPrint('❌ createEnte error: $e');
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
+
+  Future<void> deleteEnte(String id) async {
+    try {
+      final response = await _dio.delete(
+        '/api/enti/$id',
+        options: Options(headers: await _getHeaders()),
+      );
+      if (response.data['success'] != true) {
+        throw Exception('Errore');
+      }
+    } catch (e) {
+      debugPrint('❌ deleteEnte error: $e');
+      throw Exception('Errore');
     }
   }
 

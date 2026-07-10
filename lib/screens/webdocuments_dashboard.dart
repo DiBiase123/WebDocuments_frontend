@@ -60,7 +60,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       builder: (_) => DocumentFormDialog(
         initialDescription: doc?['description'] ?? '',
         initialDate: doc?['documentDate'] ?? '',
-        initialEnte: doc?['ente'] ?? '',
+        initialEnteId: doc?['enteId'] ?? doc?['ente']?['id'] ?? '',
       ),
     );
   }
@@ -86,7 +86,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       await _svc.createDocument(
         description: form['description']!,
         documentDate: form['documentDate']!,
-        ente: form['ente']!,
+        enteId: form['enteId']!,
         fileBytes: f.bytes!,
         fileName: f.name,
       );
@@ -107,7 +107,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         id: d['id'],
         description: form['description'],
         documentDate: form['documentDate'],
-        ente: form['ente'],
+        enteId: form['enteId'],
       );
       _snack('Aggiornato');
       _load();
@@ -162,6 +162,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
 
   Widget _buildCard(Map<String, dynamic> d) {
     final t = Theme.of(context);
+    final enteNome = d['ente']?['nome'] ?? '';
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -169,7 +170,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Ente: ${d['ente'] ?? ''}', style: t.textTheme.bodySmall),
+            Text('Ente: $enteNome', style: t.textTheme.bodySmall),
             Text(
               'Data: ${_fmt(d['documentDate'] ?? '')}',
               style: t.textTheme.bodySmall,
@@ -221,7 +222,12 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     return Scaffold(
-      appBar: DashboardAppBar(onUpload: _upload, service: _svc),
+      appBar: DashboardAppBar(
+        onUpload: _upload,
+        service: _svc,
+        searchController: TextEditingController(),
+        onSearch: (v) {},
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:webdocuments/services/webdocuments_service.dart';
 
 class DocumentFormDialog extends StatefulWidget {
-  final String? initialDescription, initialDate, initialEnte;
+  final String? initialDescription, initialDate, initialEnteId;
   const DocumentFormDialog({
     super.key,
     this.initialDescription,
     this.initialDate,
-    this.initialEnte,
+    this.initialEnteId,
   });
   @override
   State<DocumentFormDialog> createState() => _DocumentFormDialogState();
 }
 
 class _DocumentFormDialogState extends State<DocumentFormDialog> {
+  final _svc = WebDocumentsService();
   late final _desc = TextEditingController(
     text: widget.initialDescription ?? '',
   );
@@ -21,8 +23,29 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
         ? _fmt(widget.initialDate!)
         : '',
   );
-  late final _ente = TextEditingController(text: widget.initialEnte ?? '');
   final _key = GlobalKey<FormState>();
+  List<dynamic> _enti = [];
+  String? _enteId;
+
+  @override
+  void initState() {
+    super.initState();
+    _enteId = (widget.initialEnteId != null && widget.initialEnteId!.isNotEmpty)
+        ? widget.initialEnteId
+        : null;
+    _loadEnti();
+  }
+
+  Future<void> _loadEnti() async {
+    try {
+      final enti = await _svc.getEnti();
+      if (mounted) {
+        setState(() {
+          _enti = enti;
+        });
+      }
+    } catch (_) {}
+  }
 
   static String _fmt(String s) {
     try {
@@ -46,7 +69,6 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
   void dispose() {
     _desc.dispose();
     _date.dispose();
-    _ente.dispose();
     super.dispose();
   }
 
@@ -77,11 +99,29 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
                   v?.trim().isEmpty != false ? 'Obbligatorio' : null,
             ),
             const SizedBox(height: 12),
-            TextFormField(
-              controller: _ente,
+            DropdownButtonFormField<String>(
+              initialValue: _enti.any((e) => e['id'] == _enteId)
+                  ? _enteId
+                  : null,
               decoration: const InputDecoration(labelText: 'Ente'),
-              validator: (v) =>
-                  v?.trim().isEmpty != false ? 'Obbligatorio' : null,
+              items: [
+                const DropdownMenuItem<String>(
+                  value: null,
+                  child: Text('Seleziona ente...'),
+                ),
+                ..._enti.map(
+                  (e) => DropdownMenuItem(
+                    value: e['id'] as String,
+                    child: Text(e['nome'] as String),
+                  ),
+                ),
+              ],
+              onChanged: (v) {
+                setState(() {
+                  _enteId = v;
+                });
+              },
+              validator: (v) => v == null ? 'Obbligatorio' : null,
             ),
           ],
         ),
@@ -99,7 +139,7 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
               Navigator.pop(context, {
                 'description': _desc.text.trim(),
                 'documentDate': _apiDate(_date.text.trim()),
-                'ente': _ente.text.trim(),
+                'enteId': _enteId!,
               });
             }
           },

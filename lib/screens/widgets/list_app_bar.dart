@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:webdocuments/screens/webdocuments_list.dart';
+import 'package:webdocuments/screens/webdocuments_dashboard.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 
-class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final VoidCallback onUpload;
+class ListAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final ValueChanged<String>? onSearch;
   final WebDocumentsService service;
   final TextEditingController searchController;
-  final ValueChanged<String> onSearch;
+  final bool isAdmin;
 
-  const DashboardAppBar({
+  const ListAppBar({
     super.key,
-    required this.onUpload,
+    this.onSearch,
     required this.service,
     required this.searchController,
-    required this.onSearch,
+    required this.isAdmin,
   });
 
   @override
@@ -48,27 +48,22 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: IconButton(
-          icon: const Icon(Icons.list),
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const WebDocumentsList()),
-            );
-          },
-          tooltip: 'Lista',
-        ),
-      ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: onUpload,
-            tooltip: 'Carica',
+        if (isAdmin)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: IconButton(
+              icon: const Icon(Icons.dashboard),
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (_) => const WebDocumentsDashboard(),
+                  ),
+                );
+              },
+              tooltip: 'Dashboard',
+            ),
           ),
-        ),
         Padding(
           padding: const EdgeInsets.only(left: 8, right: 24),
           child: IconButton(
