@@ -15,7 +15,7 @@ class PdfHelper {
     final auth = await _authStorage.loadAuthData();
     final base = Config.buildUrl();
     final url =
-        '$base/api/webdocuments/download/${doc['fileName']}?token=${auth?['token'] ?? ''}';
+        '$base/api/webdocuments/${doc['id']}/download?token=${auth?['token'] ?? ''}';
     return download ? '$url&download=true' : url;
   }
 
