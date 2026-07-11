@@ -42,19 +42,16 @@ class DocumentCardMobile extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            child: Text(
-              doc['description'] ?? '',
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  doc['description'] ?? '',
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -71,7 +68,7 @@ class DocumentCardMobile extends StatelessWidget {
                   ],
                 ),
                 if (entiNomi.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
@@ -83,7 +80,6 @@ class DocumentCardMobile extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(

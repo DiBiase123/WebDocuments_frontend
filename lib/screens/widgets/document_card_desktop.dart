@@ -44,48 +44,57 @@ class DocumentCardDesktop extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Text(
-              doc['description'] ?? '',
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 22,
-                  color: t.colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
                 Text(
-                  formattedDate,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  doc['description'] ?? '',
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.visibility, color: Colors.cyanAccent),
-                  onPressed: onPreview,
-                  tooltip: 'Anteprima',
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      size: 22,
+                      color: t.colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      formattedDate,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.visibility,
+                        color: Colors.cyanAccent,
+                      ),
+                      onPressed: onPreview,
+                      tooltip: 'Anteprima',
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.download,
+                        color: Colors.greenAccent,
+                      ),
+                      onPressed: onDownload,
+                      tooltip: 'Download',
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.download, color: Colors.greenAccent),
-                  onPressed: onDownload,
-                  tooltip: 'Download',
-                ),
+                if (entiNomi.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: entiNomi
+                        .map((n) => EnteBadge(nome: n, fontSize: 16))
+                        .toList(),
+                  ),
+                ],
               ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: entiNomi
-                  .map((n) => EnteBadge(nome: n, fontSize: 16))
-                  .toList(),
             ),
           ),
         ],

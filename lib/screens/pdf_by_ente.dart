@@ -15,7 +15,9 @@ class PdfByEnte extends StatefulWidget {
 
 class _PdfByEnteState extends State<PdfByEnte> {
   final _auth = AuthStorage();
+  final _searchCtl = TextEditingController();
   bool _ascending = true;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -55,6 +57,12 @@ class _PdfByEnteState extends State<PdfByEnte> {
   }
 
   @override
+  void dispose() {
+    _searchCtl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Map<String, List<dynamic>> grouped = {};
     for (final d in widget.docs) {
@@ -66,6 +74,10 @@ class _PdfByEnteState extends State<PdfByEnte> {
               .toList() ??
           ['Senza ente'];
       for (final nome in enti) {
+        if (_searchQuery.isNotEmpty &&
+            !nome.toLowerCase().contains(_searchQuery)) {
+          continue;
+        }
         grouped.putIfAbsent(nome, () => []).add(d);
       }
     }
@@ -73,36 +85,64 @@ class _PdfByEnteState extends State<PdfByEnte> {
     if (!_ascending) sortedKeys.sort((a, b) => b.compareTo(a));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Documenti per ente')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Row(
-              children: [
-                const Spacer(),
-                ElevatedButton.icon(
-                  icon: Icon(
-                    _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                    size: 20,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: false,
+            pinned: true,
+            snap: false,
+            title: SizedBox(
+              height: 36,
+              child: TextField(
+                controller: _searchCtl,
+                onChanged: (v) {
+                  setState(() {
+                    _searchQuery = v.toLowerCase();
+                  });
+                },
+                style: const TextStyle(color: Colors.white, fontSize: 15),
+                decoration: InputDecoration(
+                  hintText: 'Cerca ente...',
+                  hintStyle: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 15,
                   ),
-                  label: Text(_ascending ? 'A-Z' : 'Z-A'),
-                  onPressed: () {
-                    setState(() {
-                      _ascending = !_ascending;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
-                    foregroundColor: const Color(0xFF4ECDC4),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: Colors.white54,
+                    size: 22,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white.withAlpha(20),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
                   ),
                 ),
-              ],
+              ),
             ),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                  size: 22,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _ascending = !_ascending;
+                  });
+                },
+                tooltip: _ascending ? 'A-Z' : 'Z-A',
+              ),
+            ],
           ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList.builder(
               itemCount: sortedKeys.length,
               itemBuilder: (_, i) {
                 final nome = sortedKeys[i];

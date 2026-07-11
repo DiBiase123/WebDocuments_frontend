@@ -135,7 +135,6 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: ListAppBar(
@@ -144,72 +143,59 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         isAdmin: _isAdmin,
         onSearch: _onSearch,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Row(
-              children: [
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
-                    );
-                  },
-                  icon: const Icon(Icons.business, size: 20),
-                  label: const Text('Per ente'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
-                    foregroundColor: const Color(0xFFF08A5D),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
-                    );
-                  },
-                  icon: const Icon(Icons.calendar_month, size: 20),
-                  label: const Text('Per data'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
-                    foregroundColor: const Color(0xFF4ECDC4),
-                  ),
-                ),
-              ],
-            ),
+      body: CustomScrollView(
+        slivers: [
+          ListSliverAppBar(
+            service: _svc,
+            searchController: _searchCtl,
+            isAdmin: _isAdmin,
+            onSearch: _onSearch,
+            onEnte: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)));
+            },
+            onData: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)));
+            },
           ),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: _loading
+                ? const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
                 : _error != null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _error!,
-                          style: const TextStyle(color: Colors.redAccent),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _load,
-                          child: const Text('Riprova'),
-                        ),
-                      ],
+                ? SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _error!,
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _load,
+                            child: const Text('Riprova'),
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 : _filteredDocs.isEmpty
-                ? Center(
-                    child: Text(
-                      'Nessun documento',
-                      style: t.textTheme.bodyMedium,
+                ? const SliverFillRemaining(
+                    child: Center(
+                      child: Text(
+                        'Nessun documento',
+                        style: TextStyle(color: Colors.white54, fontSize: 16),
+                      ),
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                : SliverList.builder(
                     itemCount: _filteredDocs.length,
                     itemBuilder: (_, i) {
                       final d = _filteredDocs[i];
