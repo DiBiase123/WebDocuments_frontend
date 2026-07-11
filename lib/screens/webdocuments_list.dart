@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
+import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/list_app_bar.dart';
 import 'package:webdocuments/screens/widgets/document_card_mobile.dart';
@@ -19,6 +20,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   final _auth = AuthStorage();
   final _searchCtl = TextEditingController();
   List<dynamic> _docs = [];
+  List<dynamic> _filteredDocs = [];
   bool _loading = true;
   String? _error;
   bool _isAdmin = false;
@@ -26,6 +28,17 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   @override
   void initState() {
     super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final auth = await _auth.loadAuthData();
+    if (auth == null && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
+      );
+      return;
+    }
     _load();
     _checkAdmin();
   }
@@ -40,6 +53,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
       if (mounted) {
         setState(() {
           _docs = docs;
+          _filteredDocs = docs;
           _loading = false;
         });
       }
@@ -71,6 +85,24 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     }
   }
 
+  void _onSearch(String query) {
+    final q = query.toLowerCase();
+    setState(() {
+      _filteredDocs = q.isEmpty
+          ? _docs
+          : _docs.where((d) {
+              final f = (d['fileName'] ?? '').toLowerCase();
+              final desc = (d['description'] ?? '').toLowerCase();
+              final enti =
+                  (d['enti'] as List?)
+                      ?.map((e) => (e['ente']?['nome'] ?? '').toLowerCase())
+                      .join(' ') ??
+                  '';
+              return f.contains(q) || desc.contains(q) || enti.contains(q);
+            }).toList();
+    });
+  }
+
   String _fmt(String s) {
     try {
       final d = DateTime.parse(s);
@@ -81,15 +113,12 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   }
 
   List<String> _entiNomi(Map<String, dynamic> doc) {
-    final enti = doc['enti'] as List?;
-    if (enti == null) {
-      return [];
-    }
-    return enti
-        .map((e) => e['ente']?['nome'] as String?)
-        .where((n) => n != null)
-        .cast<String>()
-        .toList();
+    return (doc['enti'] as List?)
+            ?.map((e) => e['ente']?['nome'] as String?)
+            .where((n) => n != null)
+            .cast<String>()
+            .toList() ??
+        [];
   }
 
   @override
@@ -107,6 +136,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         service: _svc,
         searchController: _searchCtl,
         isAdmin: _isAdmin,
+        onSearch: _onSearch,
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -127,40 +157,39 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                 ],
               ),
             )
-          : _docs.isEmpty
+          : _filteredDocs.isEmpty
           ? Center(
               child: Text('Nessun documento', style: t.textTheme.bodyMedium),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: _docs.length,
+              itemCount: _filteredDocs.length,
               itemBuilder: (_, i) {
-                final d = _docs[i];
+                final d = _filteredDocs[i];
                 final entiNomi = _entiNomi(d);
-                if (isMobile) {
-                  return DocumentCardMobile(
-                    doc: d,
-                    formattedDate: _fmt(d['documentDate'] ?? ''),
-                    entiNomi: entiNomi,
-                    onPreview: () {
-                      _pdf.open(d);
-                    },
-                    onDownload: () {
-                      _pdf.download(d);
-                    },
-                  );
-                }
-                return DocumentCardDesktop(
-                  doc: d,
-                  formattedDate: _fmt(d['documentDate'] ?? ''),
-                  entiNomi: entiNomi,
-                  onPreview: () {
-                    _pdf.open(d);
-                  },
-                  onDownload: () {
-                    _pdf.download(d);
-                  },
-                );
+                return isMobile
+                    ? DocumentCardMobile(
+                        doc: d,
+                        formattedDate: _fmt(d['documentDate'] ?? ''),
+                        entiNomi: entiNomi,
+                        onPreview: () {
+                          _pdf.open(d);
+                        },
+                        onDownload: () {
+                          _pdf.download(d);
+                        },
+                      )
+                    : DocumentCardDesktop(
+                        doc: d,
+                        formattedDate: _fmt(d['documentDate'] ?? ''),
+                        entiNomi: entiNomi,
+                        onPreview: () {
+                          _pdf.open(d);
+                        },
+                        onDownload: () {
+                          _pdf.download(d);
+                        },
+                      );
               },
             ),
     );

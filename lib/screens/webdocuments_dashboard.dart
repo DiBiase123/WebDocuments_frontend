@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
+import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/document_form_dialog.dart';
 import 'package:webdocuments/screens/widgets/dashboard_app_bar.dart';
@@ -16,6 +17,7 @@ class WebDocumentsDashboard extends StatefulWidget {
 class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   final _svc = WebDocumentsService();
   final _pdf = PdfHelper(AuthStorage());
+  final _auth = AuthStorage();
   List<dynamic> _docs = [];
   bool _loading = true;
   String? _error;
@@ -23,6 +25,17 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   @override
   void initState() {
     super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final auth = await _auth.loadAuthData();
+    if (auth == null && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
+      );
+      return;
+    }
     _load();
   }
 
@@ -182,7 +195,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
               spacing: 6,
               runSpacing: 6,
               children: enti
-                  .map((nome) => EnteBadge(nome: nome, fontSize: 14))
+                  .map((n) => EnteBadge(nome: n, fontSize: 14))
                   .toList(),
             ),
             const SizedBox(height: 4),
@@ -239,6 +252,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
     return Scaffold(
       appBar: DashboardAppBar(
         onUpload: _upload,
+        onEntiChanged: _load,
         service: _svc,
         searchController: TextEditingController(),
         onSearch: (v) {},
