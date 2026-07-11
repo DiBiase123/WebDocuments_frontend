@@ -4,7 +4,7 @@ import 'package:webdocuments/screens/widgets/ente_badge.dart';
 class DocumentCardDesktop extends StatelessWidget {
   final Map<String, dynamic> doc;
   final String formattedDate;
-  final String enteNome;
+  final List<String> entiNomi;
   final VoidCallback onPreview;
   final VoidCallback onDownload;
 
@@ -12,7 +12,7 @@ class DocumentCardDesktop extends StatelessWidget {
     super.key,
     required this.doc,
     required this.formattedDate,
-    required this.enteNome,
+    required this.entiNomi,
     required this.onPreview,
     required this.onDownload,
   });
@@ -80,7 +80,13 @@ class DocumentCardDesktop extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: EnteBadge(nome: enteNome, fontSize: 16),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: entiNomi
+                  .map((n) => EnteBadge(nome: n, fontSize: 16))
+                  .toList(),
+            ),
           ),
         ],
       ),

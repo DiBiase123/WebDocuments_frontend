@@ -3,12 +3,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 
 class DocumentFormDialog extends StatefulWidget {
-  final String? initialDescription, initialDate, initialEnteId;
+  final String? initialDescription, initialDate;
+  final List<String>? initialEnteIds;
   const DocumentFormDialog({
     super.key,
     this.initialDescription,
     this.initialDate,
-    this.initialEnteId,
+    this.initialEnteIds,
   });
   @override
   State<DocumentFormDialog> createState() => _DocumentFormDialogState();
@@ -26,7 +27,7 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
   );
   final _key = GlobalKey<FormState>();
   List<dynamic> _enti = [];
-  String? _enteId;
+  List<String> _enteIds = [];
   PlatformFile? _file;
 
   bool get isEditing =>
@@ -36,9 +37,7 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
   @override
   void initState() {
     super.initState();
-    _enteId = (widget.initialEnteId != null && widget.initialEnteId!.isNotEmpty)
-        ? widget.initialEnteId
-        : null;
+    _enteIds = widget.initialEnteIds ?? [];
     _loadEnti();
   }
 
@@ -143,25 +142,15 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
         final newEnte = await _svc.createEnte(nome);
         setState(() {
           _enti.add(newEnte);
-          _enteId = newEnte['id'];
+          _enteIds.add(newEnte['id']);
         });
       } catch (e) {
-        if (nome.isNotEmpty) {
-          try {
-            final newEnte = await _svc.createEnte(nome);
-            setState(() {
-              _enti.add(newEnte);
-              _enteId = newEnte['id'];
-            });
-          } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(e.toString().replaceFirst('Exception: ', '')),
-                ),
-              );
-            }
-          }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString().replaceFirst('Exception: ', '')),
+            ),
+          );
         }
       }
     }
@@ -198,11 +187,17 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
                   );
                   return;
                 }
+                if (_enteIds.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Seleziona almeno un ente')),
+                  );
+                  return;
+                }
                 if (_key.currentState!.validate()) {
                   Navigator.pop(context, {
                     'description': _desc.text.trim(),
                     'documentDate': _apiDate(_date.text.trim()),
-                    'enteId': _enteId!,
+                    'enteIds': _enteIds,
                     if (_file != null) 'file': _file,
                   });
                 }
@@ -283,42 +278,49 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _enti.any((e) => e['id'] == _enteId)
-                          ? _enteId
-                          : null,
-                      style: const TextStyle(fontSize: 18, color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: 'Ente',
-                        labelStyle: const TextStyle(fontSize: 18),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: null,
-                          child: Text(
-                            'Seleziona ente...',
-                            style: TextStyle(fontSize: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Enti',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: t.colorScheme.secondary,
                           ),
                         ),
-                        ..._enti.map(
-                          (e) => DropdownMenuItem(
-                            value: e['id'] as String,
-                            child: Text(
-                              e['nome'] as String,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _enti.map((e) {
+                            final id = e['id'] as String;
+                            final selected = _enteIds.contains(id);
+                            return FilterChip(
+                              label: Text(
+                                e['nome'] as String,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: selected ? Colors.white : null,
+                                ),
+                              ),
+                              selected: selected,
+                              onSelected: (v) {
+                                setState(() {
+                                  if (v) {
+                                    _enteIds.add(id);
+                                  } else {
+                                    _enteIds.remove(id);
+                                  }
+                                });
+                              },
+                              selectedColor: t.colorScheme.primary.withAlpha(
+                                100,
+                              ),
+                              checkmarkColor: Colors.white,
+                            );
+                          }).toList(),
                         ),
                       ],
-                      onChanged: (v) {
-                        setState(() {
-                          _enteId = v;
-                        });
-                      },
-                      validator: (v) => v == null ? 'Obbligatorio' : null,
                     ),
                   ),
                   const SizedBox(width: 8),

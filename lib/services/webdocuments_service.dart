@@ -61,7 +61,7 @@ class WebDocumentsService {
   Future<Map<String, dynamic>> createDocument({
     required String description,
     required String documentDate,
-    required String enteId,
+    required List<String> enteIds,
     required List<int> fileBytes,
     required String fileName,
   }) async {
@@ -72,7 +72,7 @@ class WebDocumentsService {
         data: {
           'description': description,
           'documentDate': documentDate,
-          'enteId': enteId,
+          'enteIds': enteIds,
           'fileName': fileName,
           'fileData': base64.encode(fileBytes),
         },
@@ -92,7 +92,7 @@ class WebDocumentsService {
     required String id,
     String? description,
     String? documentDate,
-    String? enteId,
+    List<String>? enteIds,
   }) async {
     try {
       final headers = await _getHeaders();
@@ -103,8 +103,8 @@ class WebDocumentsService {
       if (documentDate != null) {
         body['documentDate'] = documentDate;
       }
-      if (enteId != null) {
-        body['enteId'] = enteId;
+      if (enteIds != null) {
+        body['enteIds'] = enteIds;
       }
       final response = await _dio.put(
         '/api/webdocuments/$id',

@@ -80,6 +80,18 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     }
   }
 
+  List<String> _entiNomi(Map<String, dynamic> doc) {
+    final enti = doc['enti'] as List?;
+    if (enti == null) {
+      return [];
+    }
+    return enti
+        .map((e) => e['ente']?['nome'] as String?)
+        .where((n) => n != null)
+        .cast<String>()
+        .toList();
+  }
+
   @override
   void dispose() {
     _searchCtl.dispose();
@@ -124,11 +136,12 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
               itemCount: _docs.length,
               itemBuilder: (_, i) {
                 final d = _docs[i];
+                final entiNomi = _entiNomi(d);
                 if (isMobile) {
                   return DocumentCardMobile(
                     doc: d,
                     formattedDate: _fmt(d['documentDate'] ?? ''),
-                    enteNome: d['ente']?['nome'] ?? '',
+                    entiNomi: entiNomi,
                     onPreview: () {
                       _pdf.open(d);
                     },
@@ -140,7 +153,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                 return DocumentCardDesktop(
                   doc: d,
                   formattedDate: _fmt(d['documentDate'] ?? ''),
-                  enteNome: d['ente']?['nome'] ?? '',
+                  entiNomi: entiNomi,
                   onPreview: () {
                     _pdf.open(d);
                   },

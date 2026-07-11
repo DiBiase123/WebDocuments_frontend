@@ -4,7 +4,7 @@ import 'package:webdocuments/screens/widgets/ente_badge.dart';
 class DocumentCardMobile extends StatelessWidget {
   final Map<String, dynamic> doc;
   final String formattedDate;
-  final String enteNome;
+  final List<String> entiNomi;
   final VoidCallback onPreview;
   final VoidCallback onDownload;
 
@@ -12,7 +12,7 @@ class DocumentCardMobile extends StatelessWidget {
     super.key,
     required this.doc,
     required this.formattedDate,
-    required this.enteNome,
+    required this.entiNomi,
     required this.onPreview,
     required this.onDownload,
   });
@@ -53,6 +53,7 @@ class DocumentCardMobile extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -70,7 +71,13 @@ class DocumentCardMobile extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                EnteBadge(nome: enteNome, fontSize: 16),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: entiNomi
+                      .map((n) => EnteBadge(nome: n, fontSize: 14))
+                      .toList(),
+                ),
               ],
             ),
           ),

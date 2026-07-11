@@ -56,12 +56,20 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   }
 
   Future<Map<String, dynamic>?> _form([Map<String, dynamic>? doc]) {
+    List<String>? enteIds;
+    if (doc?['enti'] != null) {
+      enteIds = (doc!['enti'] as List)
+          .map((e) => e['ente']?['id'] as String)
+          .toList();
+    } else if (doc?['enteId'] != null) {
+      enteIds = [doc!['enteId'] as String];
+    }
     return showDialog<Map<String, dynamic>>(
       context: context,
       builder: (_) => DocumentFormDialog(
         initialDescription: doc?['description'],
         initialDate: doc?['documentDate'],
-        initialEnteId: doc?['enteId'] ?? doc?['ente']?['id'],
+        initialEnteIds: enteIds,
       ),
     );
   }
@@ -79,7 +87,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       await _svc.createDocument(
         description: form['description']!,
         documentDate: form['documentDate']!,
-        enteId: form['enteId']!,
+        enteIds: (form['enteIds'] as List).cast<String>(),
         fileBytes: file.bytes!,
         fileName: file.name,
       );
@@ -100,7 +108,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         id: d['id'],
         description: form['description'],
         documentDate: form['documentDate'],
-        enteId: form['enteId'],
+        enteIds: (form['enteIds'] as List).cast<String>(),
       );
       _snack('Aggiornato');
       _load();
@@ -155,7 +163,13 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
 
   Widget _buildCard(Map<String, dynamic> d) {
     final t = Theme.of(context);
-    final enteNome = d['ente']?['nome'] ?? '';
+    final enti =
+        (d['enti'] as List?)
+            ?.map((e) => e['ente']?['nome'] as String?)
+            .where((n) => n != null)
+            .cast<String>()
+            .toList() ??
+        [];
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -164,7 +178,13 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            EnteBadge(nome: enteNome, fontSize: 14),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: enti
+                  .map((nome) => EnteBadge(nome: nome, fontSize: 14))
+                  .toList(),
+            ),
             const SizedBox(height: 4),
             Text(
               'Data: ${_fmt(d['documentDate'] ?? '')}',
