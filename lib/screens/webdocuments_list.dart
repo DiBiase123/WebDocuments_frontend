@@ -80,31 +80,31 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     }
     final parts = auth['token']!.split('.');
     if (parts.length == 3) {
-      final payload = jsonDecode(
+      final p = jsonDecode(
         utf8.decode(base64.decode(base64.normalize(parts[1]))),
       );
       if (mounted) {
         setState(() {
-          _isAdmin = payload['role'] == 'ADMIN';
+          _isAdmin = p['role'] == 'ADMIN';
         });
       }
     }
   }
 
-  void _onSearch(String query) {
-    final q = query.toLowerCase();
+  void _onSearch(String q) {
+    final f = q.toLowerCase();
     setState(() {
-      _filteredDocs = q.isEmpty
+      _filteredDocs = f.isEmpty
           ? _docs
           : _docs.where((d) {
-              final f = (d['fileName'] ?? '').toLowerCase();
-              final desc = (d['description'] ?? '').toLowerCase();
-              final enti =
-                  (d['enti'] as List?)
-                      ?.map((e) => (e['ente']?['nome'] ?? '').toLowerCase())
-                      .join(' ') ??
-                  '';
-              return f.contains(q) || desc.contains(q) || enti.contains(q);
+              return (d['fileName'] ?? '').toLowerCase().contains(f) ||
+                  (d['description'] ?? '').toLowerCase().contains(f) ||
+                  ((d['enti'] as List?)
+                              ?.map((e) => e['ente']?['nome'] ?? '')
+                              .join(' ') ??
+                          '')
+                      .toLowerCase()
+                      .contains(f);
             }).toList();
     });
   }
@@ -118,14 +118,13 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     }
   }
 
-  List<String> _entiNomi(Map<String, dynamic> doc) {
-    return (doc['enti'] as List?)
-            ?.map((e) => e['ente']?['nome'] as String?)
-            .where((n) => n != null)
-            .cast<String>()
-            .toList() ??
-        [];
-  }
+  List<String> _entiNomi(Map<String, dynamic> d) =>
+      (d['enti'] as List?)
+          ?.map((e) => e['ente']?['nome'] as String?)
+          .where((n) => n != null)
+          .cast<String>()
+          .toList() ??
+      [];
 
   @override
   void dispose() {
@@ -143,59 +142,80 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         isAdmin: _isAdmin,
         onSearch: _onSearch,
       ),
-      body: CustomScrollView(
-        slivers: [
-          ListSliverAppBar(
-            service: _svc,
-            searchController: _searchCtl,
-            isAdmin: _isAdmin,
-            onSearch: _onSearch,
-            onEnte: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)));
-            },
-            onData: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)));
-            },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              children: [
+                const Spacer(),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
+                    );
+                  },
+                  icon: const Icon(Icons.business, size: 18),
+                  label: const Text('Enti', style: TextStyle(fontSize: 14)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
+                    foregroundColor: const Color(0xFFF08A5D),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
+                    );
+                  },
+                  icon: const Icon(Icons.calendar_month, size: 18),
+                  label: const Text('Date', style: TextStyle(fontSize: 14)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
+                    foregroundColor: const Color(0xFF4ECDC4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: _loading
-                ? const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                ? SliverFillRemaining(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _error!,
-                            style: const TextStyle(color: Colors.redAccent),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _load,
-                            child: const Text('Riprova'),
-                          ),
-                        ],
-                      ),
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.redAccent),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _load,
+                          child: const Text('Riprova'),
+                        ),
+                      ],
                     ),
                   )
                 : _filteredDocs.isEmpty
-                ? const SliverFillRemaining(
-                    child: Center(
-                      child: Text(
-                        'Nessun documento',
-                        style: TextStyle(color: Colors.white54, fontSize: 16),
-                      ),
+                ? const Center(
+                    child: Text(
+                      'Nessun documento',
+                      style: TextStyle(color: Colors.white54, fontSize: 16),
                     ),
                   )
-                : SliverList.builder(
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
                     itemCount: _filteredDocs.length,
                     itemBuilder: (_, i) {
                       final d = _filteredDocs[i];

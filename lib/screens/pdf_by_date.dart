@@ -142,6 +142,7 @@ class _PdfByDateState extends State<PdfByDate> {
       ),
       body: Column(
         children: [
+          // Sostituisci solo i bottoni con versione compatta
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
@@ -150,10 +151,11 @@ class _PdfByDateState extends State<PdfByDate> {
                 ElevatedButton.icon(
                   icon: Icon(
                     _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                    size: 20,
+                    size: 18,
                   ),
                   label: Text(
-                    _ascending ? 'Data crescente' : 'Data decrescente',
+                    _ascending ? 'Crescente' : 'Decrescente',
+                    style: const TextStyle(fontSize: 14),
                   ),
                   onPressed: () {
                     setState(() {
@@ -164,15 +166,22 @@ class _PdfByDateState extends State<PdfByDate> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
                     foregroundColor: const Color(0xFF4ECDC4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 ElevatedButton.icon(
                   icon: Icon(
                     _sortByEnte ? Icons.calendar_month : Icons.business,
-                    size: 20,
+                    size: 18,
                   ),
-                  label: Text(_sortByEnte ? 'Per data' : 'Per ente'),
+                  label: Text(
+                    _sortByEnte ? 'Date' : 'Enti',
+                    style: const TextStyle(fontSize: 14),
+                  ),
                   onPressed: () {
                     setState(() {
                       _sortByEnte = !_sortByEnte;
@@ -182,6 +191,10 @@ class _PdfByDateState extends State<PdfByDate> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
                     foregroundColor: const Color(0xFFF08A5D),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                   ),
                 ),
               ],
