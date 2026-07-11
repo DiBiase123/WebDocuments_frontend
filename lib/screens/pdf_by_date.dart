@@ -146,6 +146,27 @@ class _PdfByDateState extends State<PdfByDate> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
               children: [
+                const Spacer(),
+                ElevatedButton.icon(
+                  icon: Icon(
+                    _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                    size: 20,
+                  ),
+                  label: Text(
+                    _ascending ? 'Data crescente' : 'Data decrescente',
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _ascending = !_ascending;
+                      _sort();
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
+                    foregroundColor: const Color(0xFF4ECDC4),
+                  ),
+                ),
+                const SizedBox(width: 12),
                 ElevatedButton.icon(
                   icon: Icon(
                     _sortByEnte ? Icons.calendar_month : Icons.business,
@@ -161,24 +182,6 @@ class _PdfByDateState extends State<PdfByDate> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
                     foregroundColor: const Color(0xFFF08A5D),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  icon: Icon(
-                    _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                    size: 20,
-                  ),
-                  label: Text(_ascending ? 'Recente prima' : 'Vecchio prima'),
-                  onPressed: () {
-                    setState(() {
-                      _ascending = !_ascending;
-                      _sort();
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
-                    foregroundColor: const Color(0xFF4ECDC4),
                   ),
                 ),
               ],

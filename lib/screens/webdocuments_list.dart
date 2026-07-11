@@ -150,6 +150,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
               children: [
+                const Spacer(),
                 ElevatedButton.icon(
                   onPressed: () {
                     Navigator.of(context).push(

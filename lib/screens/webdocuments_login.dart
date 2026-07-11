@@ -89,6 +89,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(24),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),

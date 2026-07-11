@@ -80,6 +80,7 @@ class _PdfByEnteState extends State<PdfByEnte> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
               children: [
+                const Spacer(),
                 ElevatedButton.icon(
                   icon: Icon(
                     _ascending ? Icons.arrow_upward : Icons.arrow_downward,
