@@ -6,9 +6,9 @@ import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/pdf_by_ente.dart';
 import 'package:webdocuments/screens/pdf_by_date.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
-import 'package:webdocuments/screens/widgets/list_app_bar.dart';
 import 'package:webdocuments/screens/widgets/document_card_mobile.dart';
 import 'package:webdocuments/screens/widgets/document_card_desktop.dart';
+import 'package:webdocuments/screens/webdocuments_dashboard.dart';
 
 class WebDocumentsList extends StatefulWidget {
   const WebDocumentsList({super.key});
@@ -21,6 +21,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   final _pdf = PdfHelper(AuthStorage());
   final _auth = AuthStorage();
   final _searchCtl = TextEditingController();
+  final _scrollCtl = ScrollController();
   List<dynamic> _docs = [];
   List<dynamic> _filteredDocs = [];
   bool _loading = true;
@@ -31,6 +32,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   void initState() {
     super.initState();
     _checkAuth();
+    _scrollCtl.addListener(() => setState(() {}));
   }
 
   Future<void> _checkAuth() async {
@@ -126,9 +128,12 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
           .toList() ??
       [];
 
+  bool get _scrolled => _scrollCtl.hasClients && _scrollCtl.offset > 10;
+
   @override
   void dispose() {
     _searchCtl.dispose();
+    _scrollCtl.dispose();
     super.dispose();
   }
 
@@ -136,57 +141,162 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
-      appBar: ListAppBar(
-        service: _svc,
-        searchController: _searchCtl,
-        isAdmin: _isAdmin,
-        onSearch: _onSearch,
+      appBar: AppBar(
+        toolbarHeight: _scrolled ? 56 : 70,
+        titleSpacing: 0,
+        title: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: SizedBox(
+            height: 40,
+            child: TextField(
+              controller: _searchCtl,
+              onChanged: _onSearch,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+              decoration: InputDecoration(
+                hintText: 'Cerca...',
+                hintStyle: const TextStyle(color: Colors.white38, fontSize: 16),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: Colors.white54,
+                  size: 24,
+                ),
+                filled: true,
+                fillColor: Colors.white.withAlpha(20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+            ),
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          if (isMobile && _scrolled) ...[
+            IconButton(
+              icon: const Icon(Icons.business, color: Color(0xFFF08A5D)),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
+                );
+              },
+              tooltip: 'Enti',
+            ),
+            IconButton(
+              icon: const Icon(Icons.calendar_month, color: Color(0xFF4ECDC4)),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
+                );
+              },
+              tooltip: 'Date',
+            ),
+          ] else if (!isMobile && _scrolled) ...[
+            IconButton(
+              icon: const Icon(Icons.business, color: Color(0xFFF08A5D)),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
+                );
+              },
+              tooltip: 'Enti',
+            ),
+            IconButton(
+              icon: const Icon(Icons.calendar_month, color: Color(0xFF4ECDC4)),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
+                );
+              },
+              tooltip: 'Date',
+            ),
+          ],
+          if (_isAdmin && (!_scrolled || !isMobile))
+            IconButton(
+              icon: const Icon(Icons.dashboard),
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (_) => const WebDocumentsDashboard(),
+                  ),
+                );
+              },
+              tooltip: 'Dashboard',
+            ),
+          if (!_scrolled || !isMobile)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: IconButton(
+                icon: const Icon(Icons.power_settings_new),
+                onPressed: () async {
+                  await _svc.logout();
+                  if (context.mounted) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) => const WebDocumentsLogin(),
+                      ),
+                    );
+                  }
+                },
+                tooltip: 'Esci',
+              ),
+            ),
+        ],
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Row(
-              children: [
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
-                    );
-                  },
-                  icon: const Icon(Icons.business, size: 18),
-                  label: const Text('Enti', style: TextStyle(fontSize: 14)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
-                    foregroundColor: const Color(0xFFF08A5D),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
+          if (!isMobile && !_scrolled)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Row(
+                children: [
+                  const Spacer(),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => PdfByEnte(docs: _docs),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.business, size: 32),
+                    label: const Text('Enti', style: TextStyle(fontSize: 22)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
+                      foregroundColor: const Color(0xFFF08A5D),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 18,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
-                    );
-                  },
-                  icon: const Icon(Icons.calendar_month, size: 18),
-                  label: const Text('Date', style: TextStyle(fontSize: 14)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
-                    foregroundColor: const Color(0xFF4ECDC4),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
+                  const SizedBox(width: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => PdfByDate(docs: _docs),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.calendar_month, size: 32),
+                    label: const Text('Date', style: TextStyle(fontSize: 22)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
+                      foregroundColor: const Color(0xFF4ECDC4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 18,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
@@ -215,6 +325,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                     ),
                   )
                 : ListView.builder(
+                    controller: _scrollCtl,
                     padding: const EdgeInsets.all(16),
                     itemCount: _filteredDocs.length,
                     itemBuilder: (_, i) {

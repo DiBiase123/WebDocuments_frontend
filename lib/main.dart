@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:webdocuments/navigation/go_router.dart';
@@ -14,6 +15,14 @@ class WebDocumentsApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       routerConfig: goRouter,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.trackpad,
+        },
+      ),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

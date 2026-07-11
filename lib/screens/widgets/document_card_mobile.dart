@@ -23,6 +23,7 @@ class DocumentCardMobile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: double.infinity,
@@ -52,29 +53,38 @@ class DocumentCardMobile extends StatelessWidget {
                   style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 20,
-                      color: t.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      formattedDate,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 20,
+                        color: t.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        formattedDate,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 if (entiNomi.isNotEmpty) ...[
                   const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: entiNomi
-                        .map((n) => EnteBadge(nome: n, fontSize: 14))
-                        .toList(),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: entiNomi
+                          .map((n) => EnteBadge(nome: n, fontSize: 14))
+                          .toList(),
+                    ),
                   ),
                 ],
               ],
