@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/pdf_by_ente.dart';
+import 'package:webdocuments/screens/pdf_by_date.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/list_app_bar.dart';
 import 'package:webdocuments/screens/widgets/document_card_mobile.dart';
@@ -51,6 +53,10 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     try {
       final docs = await _svc.getDocuments();
       if (mounted) {
+        docs.sort(
+          (a, b) =>
+              (b['documentDate'] ?? '').compareTo(a['documentDate'] ?? ''),
+        );
         setState(() {
           _docs = docs;
           _filteredDocs = docs;
@@ -138,60 +144,103 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         isAdmin: _isAdmin,
         onSearch: _onSearch,
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _error!,
-                    style: const TextStyle(color: Colors.redAccent),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
+                    );
+                  },
+                  icon: const Icon(Icons.business, size: 20),
+                  label: const Text('Per ente'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
+                    foregroundColor: const Color(0xFFF08A5D),
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _load,
-                    child: const Text('Riprova'),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
+                    );
+                  },
+                  icon: const Icon(Icons.calendar_month, size: 20),
+                  label: const Text('Per data'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
+                    foregroundColor: const Color(0xFF4ECDC4),
                   ),
-                ],
-              ),
-            )
-          : _filteredDocs.isEmpty
-          ? Center(
-              child: Text('Nessun documento', style: t.textTheme.bodyMedium),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _filteredDocs.length,
-              itemBuilder: (_, i) {
-                final d = _filteredDocs[i];
-                final entiNomi = _entiNomi(d);
-                return isMobile
-                    ? DocumentCardMobile(
-                        doc: d,
-                        formattedDate: _fmt(d['documentDate'] ?? ''),
-                        entiNomi: entiNomi,
-                        onPreview: () {
-                          _pdf.open(d);
-                        },
-                        onDownload: () {
-                          _pdf.download(d);
-                        },
-                      )
-                    : DocumentCardDesktop(
-                        doc: d,
-                        formattedDate: _fmt(d['documentDate'] ?? ''),
-                        entiNomi: entiNomi,
-                        onPreview: () {
-                          _pdf.open(d);
-                        },
-                        onDownload: () {
-                          _pdf.download(d);
-                        },
-                      );
-              },
+                ),
+              ],
             ),
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.redAccent),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _load,
+                          child: const Text('Riprova'),
+                        ),
+                      ],
+                    ),
+                  )
+                : _filteredDocs.isEmpty
+                ? Center(
+                    child: Text(
+                      'Nessun documento',
+                      style: t.textTheme.bodyMedium,
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _filteredDocs.length,
+                    itemBuilder: (_, i) {
+                      final d = _filteredDocs[i];
+                      final entiNomi = _entiNomi(d);
+                      return isMobile
+                          ? DocumentCardMobile(
+                              doc: d,
+                              formattedDate: _fmt(d['documentDate'] ?? ''),
+                              entiNomi: entiNomi,
+                              onPreview: () {
+                                _pdf.open(d);
+                              },
+                              onDownload: () {
+                                _pdf.download(d);
+                              },
+                            )
+                          : DocumentCardDesktop(
+                              doc: d,
+                              formattedDate: _fmt(d['documentDate'] ?? ''),
+                              entiNomi: entiNomi,
+                              onPreview: () {
+                                _pdf.open(d);
+                              },
+                              onDownload: () {
+                                _pdf.download(d);
+                              },
+                            );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

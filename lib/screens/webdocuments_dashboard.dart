@@ -37,10 +37,13 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       );
       return;
     }
-    _load();
+    if (mounted) {
+      _load();
+    }
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _error = null;
@@ -105,10 +108,14 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         fileBytes: file.bytes!,
         fileName: file.name,
       );
-      _snack('Caricato');
-      _load();
+      if (mounted) {
+        _snack('Caricato');
+        _load();
+      }
     } catch (e) {
-      _snack(e.toString().replaceFirst('Exception: ', ''));
+      if (mounted) {
+        _snack(e.toString().replaceFirst('Exception: ', ''));
+      }
     }
   }
 
@@ -124,10 +131,14 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         documentDate: form['documentDate'],
         enteIds: (form['enteIds'] as List).cast<String>(),
       );
-      _snack('Aggiornato');
-      _load();
+      if (mounted) {
+        _snack('Aggiornato');
+        _load();
+      }
     } catch (_) {
-      _snack('Errore modifica');
+      if (mounted) {
+        _snack('Errore modifica');
+      }
     }
   }
 
@@ -159,10 +170,14 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
     }
     try {
       await _svc.deleteDocument(d['id']);
-      _snack('Eliminato');
-      _load();
+      if (mounted) {
+        _snack('Eliminato');
+        _load();
+      }
     } catch (_) {
-      _snack('Errore');
+      if (mounted) {
+        _snack('Errore');
+      }
     }
   }
 
@@ -260,9 +275,10 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
               children: [
+                const Spacer(),
                 ElevatedButton.icon(
                   onPressed: () async {
                     await Navigator.of(context).push(
@@ -270,7 +286,9 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
                         builder: (_) => const WebDocumentsEnti(),
                       ),
                     );
-                    _load();
+                    if (mounted) {
+                      _load();
+                    }
                   },
                   icon: const Icon(Icons.business, size: 22),
                   label: const Text('Gestione enti'),
