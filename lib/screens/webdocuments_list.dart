@@ -6,6 +6,7 @@ import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/pdf_by_ente.dart';
 import 'package:webdocuments/screens/pdf_by_date.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
+import 'package:webdocuments/screens/widgets/list_app_bar.dart';
 import 'package:webdocuments/screens/widgets/document_card_mobile.dart';
 import 'package:webdocuments/screens/widgets/document_card_desktop.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
@@ -27,12 +28,22 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   bool _loading = true;
   String? _error;
   bool _isAdmin = false;
+  bool _showAppBar = true;
+  double _lastOffset = 0;
 
   @override
   void initState() {
     super.initState();
     _checkAuth();
-    _scrollCtl.addListener(() => setState(() {}));
+    _scrollCtl.addListener(() {
+      final offset = _scrollCtl.offset;
+      if (offset > _lastOffset && offset > 70 && _showAppBar) {
+        setState(() => _showAppBar = false);
+      } else if (offset < _lastOffset && !_showAppBar) {
+        setState(() => _showAppBar = true);
+      }
+      _lastOffset = offset;
+    });
   }
 
   Future<void> _checkAuth() async {
@@ -128,8 +139,6 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
           .toList() ??
       [];
 
-  bool get _scrolled => _scrollCtl.hasClients && _scrollCtl.offset > 10;
-
   @override
   void dispose() {
     _searchCtl.dispose();
@@ -141,115 +150,42 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: _scrolled ? 56 : 70,
-        titleSpacing: 0,
-        title: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: SizedBox(
-            height: 40,
-            child: TextField(
-              controller: _searchCtl,
-              onChanged: _onSearch,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-              decoration: InputDecoration(
-                hintText: 'Cerca...',
-                hintStyle: const TextStyle(color: Colors.white38, fontSize: 16),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: Colors.white54,
-                  size: 24,
-                ),
-                filled: true,
-                fillColor: Colors.white.withAlpha(20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-              ),
-            ),
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          if (isMobile && _scrolled) ...[
-            IconButton(
-              icon: const Icon(Icons.business, color: Color(0xFFF08A5D)),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
-                );
-              },
-              tooltip: 'Enti',
-            ),
-            IconButton(
-              icon: const Icon(Icons.calendar_month, color: Color(0xFF4ECDC4)),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
-                );
-              },
-              tooltip: 'Date',
-            ),
-          ] else if (!isMobile && _scrolled) ...[
-            IconButton(
-              icon: const Icon(Icons.business, color: Color(0xFFF08A5D)),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
-                );
-              },
-              tooltip: 'Enti',
-            ),
-            IconButton(
-              icon: const Icon(Icons.calendar_month, color: Color(0xFF4ECDC4)),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
-                );
-              },
-              tooltip: 'Date',
-            ),
-          ],
-          if (_isAdmin && (!_scrolled || !isMobile))
-            IconButton(
-              icon: const Icon(Icons.dashboard),
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (_) => const WebDocumentsDashboard(),
-                  ),
-                );
-              },
-              tooltip: 'Dashboard',
-            ),
-          if (!_scrolled || !isMobile)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: IconButton(
-                icon: const Icon(Icons.power_settings_new),
-                onPressed: () async {
-                  await _svc.logout();
-                  if (context.mounted) {
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(_showAppBar ? 70 : 0),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: _showAppBar ? 70 : 0,
+          child: _showAppBar
+              ? ListAppBar(
+                  onSearch: _onSearch,
+                  service: _svc,
+                  searchController: _searchCtl,
+                  isAdmin: _isAdmin,
+                  isMobile: isMobile,
+                  onDashboard: () {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (_) => const WebDocumentsLogin(),
+                        builder: (_) => const WebDocumentsDashboard(),
                       ),
                     );
-                  }
-                },
-                tooltip: 'Esci',
-              ),
-            ),
-        ],
+                  },
+                  onEnte: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
+                    );
+                  },
+                  onDate: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
+                    );
+                  },
+                )
+              : const SizedBox.shrink(),
+        ),
       ),
       body: Column(
         children: [
-          if (!isMobile && !_scrolled)
+          if (!isMobile)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
@@ -359,6 +295,107 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
           ),
         ],
       ),
+      bottomNavigationBar: isMobile
+          ? Container(
+              width: double.infinity,
+              height: 50,
+              color: Theme.of(context).primaryColor,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Ink(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            right: BorderSide(color: Colors.white12),
+                          ),
+                        ),
+                        child: InkWell(
+                          splashColor: const Color(0xFFF08A5D).withAlpha(60),
+                          highlightColor: const Color(0xFFF08A5D).withAlpha(30),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => PdfByEnte(docs: _docs),
+                              ),
+                            );
+                          },
+                          child: const SizedBox.expand(
+                            child: Icon(
+                              Icons.business,
+                              color: Color(0xFFF08A5D),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Ink(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            right: BorderSide(color: Colors.white12),
+                          ),
+                        ),
+                        child: InkWell(
+                          splashColor: const Color(0xFF4ECDC4).withAlpha(60),
+                          highlightColor: const Color(0xFF4ECDC4).withAlpha(30),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => PdfByDate(docs: _docs),
+                              ),
+                            );
+                          },
+                          child: const SizedBox.expand(
+                            child: Icon(
+                              Icons.calendar_month,
+                              color: Color(0xFF4ECDC4),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (_isAdmin)
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Ink(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Colors.white12),
+                            ),
+                          ),
+                          child: InkWell(
+                            splashColor: const Color(0xFFE43F5A).withAlpha(60),
+                            highlightColor: const Color(
+                              0xFFE43F5A,
+                            ).withAlpha(30),
+                            onTap: () {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (_) => const WebDocumentsDashboard(),
+                                ),
+                              );
+                            },
+                            child: const SizedBox.expand(
+                              child: Icon(
+                                Icons.dashboard,
+                                color: Color(0xFFE43F5A),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            )
+          : null,
     );
   }
 }
