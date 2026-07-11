@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:webdocuments/config.dart';
-import 'package:webdocuments/services/auth_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:webdocuments/config.dart';
+import 'package:webdocuments/services/auth_storage.dart';
+import 'package:webdocuments/screens/webdocuments_login.dart';
 
 class PdfByDate extends StatefulWidget {
   final List<dynamic> docs;
@@ -22,7 +23,17 @@ class _PdfByDateState extends State<PdfByDate> {
   @override
   void initState() {
     super.initState();
+    _checkAuth();
     _sort();
+  }
+
+  Future<void> _checkAuth() async {
+    final auth = await _auth.loadAuthData();
+    if (auth == null && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
+      );
+    }
   }
 
   void _sort() {
