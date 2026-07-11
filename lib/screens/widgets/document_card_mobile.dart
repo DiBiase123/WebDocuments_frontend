@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webdocuments/screens/widgets/ente_badge.dart';
 
 class DocumentCardMobile extends StatelessWidget {
   final Map<String, dynamic> doc;
@@ -23,7 +24,6 @@ class DocumentCardMobile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       child: Column(
         children: [
-          // Header: nome file
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -42,7 +42,6 @@ class DocumentCardMobile extends StatelessWidget {
               ),
             ),
           ),
-          // Zona 1: descrizione
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
@@ -51,7 +50,6 @@ class DocumentCardMobile extends StatelessWidget {
               style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
-          // Zona 2 e 3: data e ente
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             child: Row(
@@ -72,29 +70,11 @@ class DocumentCardMobile extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF08A5D).withAlpha(50),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    enteNome,
-                    style: const TextStyle(
-                      color: Color(0xFFF08A5D),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                EnteBadge(nome: enteNome, fontSize: 16),
               ],
             ),
           ),
           const SizedBox(height: 8),
-          // Footer: 2 bottoni
           Row(
             children: [
               Expanded(

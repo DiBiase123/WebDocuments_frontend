@@ -86,13 +86,15 @@ class AppTheme {
         headerBackgroundColor: const Color(0xFF1B1B2F),
         headerForegroundColor: const Color(0xFFF08A5D),
         dayForegroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected))
+          if (states.contains(WidgetState.selected)) {
             return const Color(0xFF1B1B2F);
+          }
           return const Color(0xFFEEEEEE);
         }),
         dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected))
+          if (states.contains(WidgetState.selected)) {
             return const Color(0xFFF08A5D);
+          }
           return null;
         }),
         todayForegroundColor: WidgetStateProperty.all(const Color(0xFFF08A5D)),

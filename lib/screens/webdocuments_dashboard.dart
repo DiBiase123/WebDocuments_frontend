@@ -5,6 +5,7 @@ import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/document_form_dialog.dart';
 import 'package:webdocuments/screens/widgets/dashboard_app_bar.dart';
+import 'package:webdocuments/screens/widgets/ente_badge.dart';
 
 class WebDocumentsDashboard extends StatefulWidget {
   const WebDocumentsDashboard({super.key});
@@ -162,7 +163,9 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Ente: $enteNome', style: t.textTheme.bodySmall),
+            const SizedBox(height: 4),
+            EnteBadge(nome: enteNome, fontSize: 14),
+            const SizedBox(height: 4),
             Text(
               'Data: ${_fmt(d['documentDate'] ?? '')}',
               style: t.textTheme.bodySmall,

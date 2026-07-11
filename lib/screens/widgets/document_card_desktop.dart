@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webdocuments/screens/widgets/ente_badge.dart';
 
 class DocumentCardDesktop extends StatelessWidget {
   final Map<String, dynamic> doc;
@@ -24,7 +25,6 @@ class DocumentCardDesktop extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: nome file
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -43,7 +43,6 @@ class DocumentCardDesktop extends StatelessWidget {
               ),
             ),
           ),
-          // Corpo: descrizione
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Text(
@@ -51,7 +50,6 @@ class DocumentCardDesktop extends StatelessWidget {
               style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
-          // Data + pulsanti
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -80,24 +78,9 @@ class DocumentCardDesktop extends StatelessWidget {
               ],
             ),
           ),
-          // Footer: ente in badge
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF08A5D).withAlpha(50),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                enteNome,
-                style: const TextStyle(
-                  color: Color(0xFFF08A5D),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+            child: EnteBadge(nome: enteNome, fontSize: 16),
           ),
         ],
       ),

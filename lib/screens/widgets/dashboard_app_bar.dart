@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/webdocuments_enti.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 
 class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -26,31 +27,31 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
           const SizedBox(width: 16),
           Expanded(
             child: SizedBox(
-              height: 44,
+              height: 40,
               child: TextField(
                 controller: searchController,
                 onChanged: onSearch,
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(color: Colors.white, fontSize: 16),
                 decoration: InputDecoration(
                   hintText: 'Cerca...',
                   hintStyle: const TextStyle(
                     color: Colors.white38,
-                    fontSize: 18,
+                    fontSize: 16,
                   ),
                   prefixIcon: const Icon(
                     Icons.search,
                     color: Colors.white54,
-                    size: 28,
+                    size: 24,
                   ),
                   filled: true,
                   fillColor: Colors.white.withAlpha(20),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
                   ),
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
+                    horizontal: 12,
+                    vertical: 8,
                   ),
                 ),
               ),
@@ -59,6 +60,15 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        IconButton(
+          icon: const Icon(Icons.business, color: Color(0xFFF08A5D)),
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const WebDocumentsEnti()));
+          },
+          tooltip: 'Enti',
+        ),
         IconButton(
           icon: const Icon(Icons.add),
           onPressed: onUpload,
@@ -93,5 +103,5 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(80);
+  Size get preferredSize => const Size.fromHeight(70);
 }

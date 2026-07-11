@@ -114,6 +114,59 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
     }
   }
 
+  Future<void> _addEnte() async {
+    final nome = await showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        final ctrl = TextEditingController();
+        return AlertDialog(
+          title: const Text('Nuovo ente'),
+          content: TextField(
+            controller: ctrl,
+            decoration: const InputDecoration(labelText: 'Nome ente'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Annulla'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+              child: const Text('Crea'),
+            ),
+          ],
+        );
+      },
+    );
+    if (nome != null && nome.isNotEmpty) {
+      try {
+        final newEnte = await _svc.createEnte(nome);
+        setState(() {
+          _enti.add(newEnte);
+          _enteId = newEnte['id'];
+        });
+      } catch (e) {
+        if (nome.isNotEmpty) {
+          try {
+            final newEnte = await _svc.createEnte(nome);
+            setState(() {
+              _enti.add(newEnte);
+              _enteId = newEnte['id'];
+            });
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(e.toString().replaceFirst('Exception: ', '')),
+                ),
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
   @override
   void dispose() {
     _desc.dispose();
@@ -227,42 +280,58 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
                     v?.trim().isEmpty != false ? 'Obbligatorio' : null,
               ),
               const SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                initialValue: _enti.any((e) => e['id'] == _enteId)
-                    ? _enteId
-                    : null,
-                style: const TextStyle(fontSize: 18, color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Ente',
-                  labelStyle: const TextStyle(fontSize: 18),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                items: [
-                  const DropdownMenuItem<String>(
-                    value: null,
-                    child: Text(
-                      'Seleziona ente...',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  ..._enti.map(
-                    (e) => DropdownMenuItem(
-                      value: e['id'] as String,
-                      child: Text(
-                        e['nome'] as String,
-                        style: const TextStyle(fontSize: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _enti.any((e) => e['id'] == _enteId)
+                          ? _enteId
+                          : null,
+                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Ente',
+                        labelStyle: const TextStyle(fontSize: 18),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text(
+                            'Seleziona ente...',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        ..._enti.map(
+                          (e) => DropdownMenuItem(
+                            value: e['id'] as String,
+                            child: Text(
+                              e['nome'] as String,
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        setState(() {
+                          _enteId = v;
+                        });
+                      },
+                      validator: (v) => v == null ? 'Obbligatorio' : null,
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.add_circle,
+                      color: Color(0xFFF08A5D),
+                      size: 36,
+                    ),
+                    onPressed: _addEnte,
+                    tooltip: 'Nuovo ente',
                   ),
                 ],
-                onChanged: (v) {
-                  setState(() {
-                    _enteId = v;
-                  });
-                },
-                validator: (v) => v == null ? 'Obbligatorio' : null,
               ),
             ],
           ),

@@ -184,6 +184,23 @@ class WebDocumentsService {
     }
   }
 
+  Future<void> updateEnte(String id, String nome) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await _dio.put(
+        '/api/enti/$id',
+        data: {'nome': nome},
+        options: Options(headers: headers),
+      );
+      if (response.data['success'] != true) {
+        throw Exception('Errore');
+      }
+    } catch (e) {
+      debugPrint('❌ updateEnte error: $e');
+      throw Exception('Errore');
+    }
+  }
+
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await _dio.post(
