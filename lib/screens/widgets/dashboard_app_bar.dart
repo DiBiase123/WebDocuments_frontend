@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
-import 'package:webdocuments/screens/webdocuments_enti.dart';
-import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/services/webdocuments_service.dart';
 
 class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onUpload;
-  final VoidCallback onEntiChanged;
   final WebDocumentsService service;
   final TextEditingController searchController;
   final ValueChanged<String> onSearch;
@@ -14,7 +12,6 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   const DashboardAppBar({
     super.key,
     required this.onUpload,
-    required this.onEntiChanged,
     required this.service,
     required this.searchController,
     required this.onSearch,
@@ -62,16 +59,6 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.business, color: Color(0xFFF08A5D)),
-          onPressed: () async {
-            await Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const WebDocumentsEnti()));
-            onEntiChanged();
-          },
-          tooltip: 'Enti',
-        ),
         IconButton(
           icon: const Icon(Icons.add),
           onPressed: onUpload,

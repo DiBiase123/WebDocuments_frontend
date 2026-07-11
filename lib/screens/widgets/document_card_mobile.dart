@@ -52,7 +52,7 @@ class DocumentCardMobile extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -70,14 +70,16 @@ class DocumentCardMobile extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Spacer(),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: entiNomi
-                      .map((n) => EnteBadge(nome: n, fontSize: 14))
-                      .toList(),
-                ),
+                if (entiNomi.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: entiNomi
+                        .map((n) => EnteBadge(nome: n, fontSize: 14))
+                        .toList(),
+                  ),
+                ],
               ],
             ),
           ),

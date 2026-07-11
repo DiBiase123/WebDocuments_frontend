@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/webdocuments_enti.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/document_form_dialog.dart';
 import 'package:webdocuments/screens/widgets/dashboard_app_bar.dart';
@@ -252,56 +253,84 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
     return Scaffold(
       appBar: DashboardAppBar(
         onUpload: _upload,
-        onEntiChanged: _load,
         service: _svc,
         searchController: TextEditingController(),
         onSearch: (v) {},
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _error!,
-                    style: const TextStyle(color: Colors.redAccent),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const WebDocumentsEnti(),
+                      ),
+                    );
+                    _load();
+                  },
+                  icon: const Icon(Icons.business, size: 22),
+                  label: const Text('Gestione enti'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
+                    foregroundColor: const Color(0xFFF08A5D),
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _load,
-                    child: const Text('Riprova'),
-                  ),
-                ],
-              ),
-            )
-          : _docs.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.folder_open,
-                    size: 64,
-                    color: t.colorScheme.primary,
-                  ),
-                  const SizedBox(height: 16),
-                  Text('Nessun documento', style: t.textTheme.bodyMedium),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: _upload,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Carica il primo documento'),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _docs.length,
-              itemBuilder: (_, i) => _buildCard(_docs[i]),
+                ),
+              ],
             ),
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.redAccent),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _load,
+                          child: const Text('Riprova'),
+                        ),
+                      ],
+                    ),
+                  )
+                : _docs.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.folder_open,
+                          size: 64,
+                          color: t.colorScheme.primary,
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Nessun documento', style: t.textTheme.bodyMedium),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: _upload,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Carica il primo documento'),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _docs.length,
+                    itemBuilder: (_, i) => _buildCard(_docs[i]),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
