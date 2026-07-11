@@ -100520,10 +100520,10 @@ for(;;)switch(s){case 0:s=3
 return A.K(p.a.tk(),$async$ue)
 case 3:n=d
 m=A.aKL("")
-l=A.l(J.as(a,"fileName"))
+l=A.l(J.as(a,"id"))
 k=n==null?null:J.as(n,"token")
 if(k==null)k=""
-o=m+"/api/webdocuments/download/"+l+"?token="+k
+o=m+"/api/webdocuments/"+l+"/download?token="+k
 q=b?o+"&download=true":o
 s=1
 break
