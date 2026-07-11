@@ -54,32 +54,24 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
     }
   }
 
-  Future<Map<String, String>?> _form([Map<String, dynamic>? doc]) {
-    return showDialog<Map<String, String>>(
+  Future<Map<String, dynamic>?> _form([Map<String, dynamic>? doc]) {
+    return showDialog<Map<String, dynamic>>(
       context: context,
       builder: (_) => DocumentFormDialog(
-        initialDescription: doc?['description'] ?? '',
-        initialDate: doc?['documentDate'] ?? '',
-        initialEnteId: doc?['enteId'] ?? doc?['ente']?['id'] ?? '',
+        initialDescription: doc?['description'],
+        initialDate: doc?['documentDate'],
+        initialEnteId: doc?['enteId'] ?? doc?['ente']?['id'],
       ),
     );
   }
 
   Future<void> _upload() async {
-    final r = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-      withData: true,
-    );
-    if (r == null || r.files.isEmpty) {
-      return;
-    }
-    final f = r.files.first;
-    if (f.bytes == null || !mounted) {
-      return;
-    }
     final form = await _form();
     if (form == null) {
+      return;
+    }
+    final file = form['file'] as PlatformFile?;
+    if (file == null || file.bytes == null) {
       return;
     }
     try {
@@ -87,8 +79,8 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         description: form['description']!,
         documentDate: form['documentDate']!,
         enteId: form['enteId']!,
-        fileBytes: f.bytes!,
-        fileName: f.name,
+        fileBytes: file.bytes!,
+        fileName: file.name,
       );
       _snack('Caricato');
       _load();

@@ -35,7 +35,9 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -45,7 +47,9 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
         _emailController.text.trim(),
         _passwordController.text,
       );
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       final tokenStr = data['token'] as String?;
       String userRole = 'USER';
       if (tokenStr != null) {
@@ -111,10 +115,12 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
+                      if (v == null || v.trim().isEmpty) {
                         return 'Inserisci e-mail';
-                      if (!_isValidEmail(v.trim()))
+                      }
+                      if (!_isValidEmail(v.trim())) {
                         return 'Formato e-mail errato';
+                      }
                       return null;
                     },
                   ),

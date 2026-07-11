@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:webdocuments/navigation/go_router.dart';
 import 'package:webdocuments/theme/app_theme.dart';
 
@@ -13,6 +14,13 @@ class WebDocumentsApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       routerConfig: goRouter,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('it')],
+      locale: const Locale('it'),
     );
   }
 }

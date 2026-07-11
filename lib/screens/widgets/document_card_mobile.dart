@@ -65,7 +65,10 @@ class DocumentCardMobile extends StatelessWidget {
                       color: t.colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
-                    Text(formattedDate, style: t.textTheme.bodySmall),
+                    Text(
+                      formattedDate,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ],
                 ),
                 const Spacer(),

@@ -60,7 +60,19 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE43F5A)),
+          borderSide: const BorderSide(color: Color(0xFFF08A5D)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFFF6B6B)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFFF6B6B)),
         ),
       ),
       iconTheme: const IconThemeData(size: 36, color: Color(0xFFF08A5D)),
@@ -68,6 +80,40 @@ class AppTheme {
         color: const Color(0xFF1F4068),
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: const Color(0xFF1F4068),
+        headerBackgroundColor: const Color(0xFF1B1B2F),
+        headerForegroundColor: const Color(0xFFF08A5D),
+        dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected))
+            return const Color(0xFF1B1B2F);
+          return const Color(0xFFEEEEEE);
+        }),
+        dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected))
+            return const Color(0xFFF08A5D);
+          return null;
+        }),
+        todayForegroundColor: WidgetStateProperty.all(const Color(0xFFF08A5D)),
+        todayBackgroundColor: WidgetStateProperty.all(
+          const Color(0xFFF08A5D).withAlpha(30),
+        ),
+        confirmButtonStyle: ButtonStyle(
+          foregroundColor: WidgetStateProperty.all(const Color(0xFFF08A5D)),
+          textStyle: WidgetStateProperty.all(
+            const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        cancelButtonStyle: ButtonStyle(
+          foregroundColor: WidgetStateProperty.all(const Color(0xFFE43F5A)),
+          textStyle: WidgetStateProperty.all(
+            const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: const Color(0xFFF08A5D)),
       ),
     );
   }
