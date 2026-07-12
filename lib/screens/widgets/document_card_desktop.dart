@@ -27,45 +27,59 @@ class DocumentCardDesktop extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: Colors.amber.shade200.withAlpha(30),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(12),
               ),
             ),
-            child: Text(
-              doc['fileName'] ?? '',
-              style: const TextStyle(
-                color: Color(0xFFFFC107),
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    doc['description'] ?? '',
+                    style: t.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      size: 18,
+                      color: t.colorScheme.primary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(formattedDate, style: t.textTheme.bodySmall),
+                  ],
+                ),
+              ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  doc['description'] ?? '',
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                Expanded(
+                  child: entiNomi.isNotEmpty
+                      ? Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: entiNomi
+                              .map((n) => EnteBadge(nome: n, fontSize: 16))
+                              .toList(),
+                        )
+                      : const SizedBox.shrink(),
                 ),
-                const SizedBox(height: 10),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 22,
-                      color: t.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      formattedDate,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    const Spacer(),
                     IconButton(
                       icon: const Icon(
                         Icons.visibility,
@@ -84,17 +98,25 @@ class DocumentCardDesktop extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (entiNomi.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: entiNomi
-                        .map((n) => EnteBadge(nome: n, fontSize: 16))
-                        .toList(),
-                  ),
-                ],
               ],
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(10),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(12),
+              ),
+            ),
+            child: Text(
+              doc['fileName'] ?? '',
+              style: TextStyle(
+                color: Colors.amber.shade200,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

@@ -24,16 +24,16 @@ class AppTheme {
         titleSpacing: 16,
       ),
       textTheme: const TextTheme(
-        bodyLarge: TextStyle(fontSize: 22, color: Color(0xFFEEEEEE)),
-        bodyMedium: TextStyle(fontSize: 20, color: Color(0xFFDDDDDD)),
-        bodySmall: TextStyle(fontSize: 18, color: Color(0xFFBBBBBB)),
+        bodyLarge: TextStyle(fontSize: 24, color: Color(0xFFEEEEEE)),
+        bodyMedium: TextStyle(fontSize: 22, color: Color(0xFFDDDDDD)),
+        bodySmall: TextStyle(fontSize: 20, color: Color(0xFFBBBBBB)),
         titleLarge: TextStyle(
-          fontSize: 30,
+          fontSize: 32,
           fontWeight: FontWeight.bold,
           color: Color(0xFFEEEEEE),
         ),
         titleMedium: TextStyle(
-          fontSize: 26,
+          fontSize: 28,
           fontWeight: FontWeight.w600,
           color: Color(0xFFF08A5D),
         ),
