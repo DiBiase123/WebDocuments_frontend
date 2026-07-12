@@ -38,7 +38,11 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     _checkAuth();
     _scrollCtl.addListener(() {
       final o = _scrollCtl.offset;
-      if ((o > _lastOffset && o > 70 && _showAppBar) ||
+      if (o <= 0) {
+        if (!_showAppBar) {
+          setState(() => _showAppBar = true);
+        }
+      } else if ((o > _lastOffset && o > 70 && _showAppBar) ||
           (o < _lastOffset && !_showAppBar)) {
         setState(() => _showAppBar = !_showAppBar);
       }
@@ -219,57 +223,73 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
       body: Column(
         children: [
           if (!isMobile)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
-                    ),
-                    icon: const Icon(Icons.business, size: 32),
-                    label: const Text('Enti', style: TextStyle(fontSize: 22)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
-                      foregroundColor: const Color(0xFFF08A5D),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 18,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  ElevatedButton(
-                    onPressed: _toggleOrder,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
-                      foregroundColor: const Color(0xFF4ECDC4),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 18,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.schedule, size: 28),
-                        const SizedBox(width: 8),
-                        Icon(
-                          _ascending
-                              ? Icons.arrow_upward
-                              : Icons.arrow_downward,
-                          size: 28,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: _showAppBar ? 70 : 0,
+              child: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Row(
+                    children: [
+                      const Spacer(),
+                      ElevatedButton.icon(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => PdfByEnte(docs: _docs),
+                          ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _ascending ? 'Crescente' : 'Decrescente',
-                          style: const TextStyle(fontSize: 22),
+                        icon: const Icon(Icons.business, size: 32),
+                        label: const Text(
+                          'Enti',
+                          style: TextStyle(fontSize: 22),
                         ),
-                      ],
-                    ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFFF08A5D,
+                          ).withAlpha(30),
+                          foregroundColor: const Color(0xFFF08A5D),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      ElevatedButton(
+                        onPressed: _toggleOrder,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF4ECDC4,
+                          ).withAlpha(30),
+                          foregroundColor: const Color(0xFF4ECDC4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 18,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.schedule, size: 28),
+                            const SizedBox(width: 8),
+                            Icon(
+                              _ascending
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                              size: 28,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _ascending ? 'Crescente' : 'Decrescente',
+                              style: const TextStyle(fontSize: 22),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           Expanded(
@@ -331,6 +351,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                         month: m,
                         docCount: cards.length,
                         cards: cards,
+                        sectionKey: GlobalKey(),
                       );
                     },
                   ),

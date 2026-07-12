@@ -4,11 +4,13 @@ class MonthSection extends StatefulWidget {
   final String month;
   final int docCount;
   final List<Widget> cards;
+  final GlobalKey? sectionKey;
   const MonthSection({
     super.key,
     required this.month,
     required this.docCount,
     required this.cards,
+    this.sectionKey,
   });
 
   @override
@@ -28,6 +30,7 @@ class _MonthSectionState extends State<MonthSection> {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     return Padding(
+      key: widget.sectionKey,
       padding: const EdgeInsets.only(top: 12),
       child: Container(
         clipBehavior: Clip.antiAlias,
@@ -38,7 +41,16 @@ class _MonthSectionState extends State<MonthSection> {
         child: Column(
           children: [
             InkWell(
-              onTap: _toggle,
+              onTap: () {
+                _toggle();
+                if (_open && widget.sectionKey?.currentContext != null) {
+                  Scrollable.ensureVisible(
+                    widget.sectionKey!.currentContext!,
+                    alignment: 0.1,
+                    duration: const Duration(milliseconds: 400),
+                  );
+                }
+              },
               borderRadius: BorderRadius.circular(10),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -91,11 +103,13 @@ class _MonthSectionState extends State<MonthSection> {
             ),
             AnimatedCrossFade(
               firstChild: const SizedBox.shrink(),
-              secondChild: Container(
-                width: double.infinity,
-                color: const Color(0xFF0F1629),
-                padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
-                child: Column(children: widget.cards),
+              secondChild: ClipRect(
+                child: Container(
+                  width: double.infinity,
+                  color: const Color(0xFF0F1629),
+                  padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+                  child: Column(children: widget.cards),
+                ),
               ),
               crossFadeState: _open
                   ? CrossFadeState.showSecond
