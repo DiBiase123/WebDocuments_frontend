@@ -10,7 +10,8 @@ class WebDocumentsEnti extends StatefulWidget {
 
 class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   final _svc = WebDocumentsService();
-  List<dynamic> _enti = [];
+  final _searchCtl = TextEditingController();
+  List<dynamic> _enti = [], _filtered = [];
   bool _loading = true;
 
   @override
@@ -28,6 +29,7 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
       if (mounted) {
         setState(() {
           _enti = enti;
+          _filtered = enti;
           _loading = false;
         });
       }
@@ -40,30 +42,90 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
     }
   }
 
-  Future<void> _add() async {
-    final nome = await showDialog<String>(
+  void _onSearch(String q) {
+    final f = q.toLowerCase();
+    setState(
+      () => _filtered = f.isEmpty
+          ? _enti
+          : _enti
+                .where(
+                  (e) => (e['nome'] ?? '').toString().toLowerCase().contains(f),
+                )
+                .toList(),
+    );
+  }
+
+  Future<String?> _showEnteDialog({
+    String? initialValue,
+    bool isEdit = false,
+  }) async {
+    return showDialog<String>(
       context: context,
       builder: (ctx) {
-        final ctrl = TextEditingController();
+        final ctrl = TextEditingController(text: initialValue ?? '');
         return AlertDialog(
-          title: const Text('Nuovo ente'),
-          content: TextField(
-            controller: ctrl,
-            decoration: const InputDecoration(labelText: 'Nome ente'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            isEdit ? 'Modifica ente' : 'Nuovo ente',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          content: SizedBox(
+            width: 400,
+            child: TextField(
+              controller: ctrl,
+              autofocus: true,
+              style: const TextStyle(fontSize: 20),
+              decoration: InputDecoration(
+                labelText: 'Nome ente',
+                labelStyle: const TextStyle(fontSize: 20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(ctx).colorScheme.surface.withAlpha(100),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
+              onSubmitted: (v) {
+                if (v.trim().isNotEmpty) Navigator.pop(ctx, v.trim());
+              },
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Annulla'),
+              child: const Text('Annulla', style: TextStyle(fontSize: 20)),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-              child: const Text('Crea'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx, ctrl.text.trim());
+              },
+              child: Text(
+                isEdit ? 'Salva' : 'Crea',
+                style: const TextStyle(fontSize: 20),
+              ),
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _add() async {
+    final nome = await _showEnteDialog();
     if (nome != null && nome.isNotEmpty) {
       try {
         await _svc.createEnte(nome);
@@ -81,29 +143,7 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   }
 
   Future<void> _edit(String id, String nome) async {
-    final newNome = await showDialog<String>(
-      context: context,
-      builder: (ctx) {
-        final ctrl = TextEditingController(text: nome);
-        return AlertDialog(
-          title: const Text('Modifica ente'),
-          content: TextField(
-            controller: ctrl,
-            decoration: const InputDecoration(labelText: 'Nome ente'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Annulla'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-              child: const Text('Salva'),
-            ),
-          ],
-        );
-      },
-    );
+    final newNome = await _showEnteDialog(initialValue: nome, isEdit: true);
     if (newNome != null && newNome.isNotEmpty) {
       try {
         await _svc.updateEnte(id, newNome);
@@ -134,28 +174,75 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   }
 
   @override
+  void dispose() {
+    _searchCtl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestione enti'),
+        title: Row(
+          children: [
+            const Text('WebDocuments'),
+            const SizedBox(width: 16),
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: TextField(
+                  controller: _searchCtl,
+                  onChanged: _onSearch,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  decoration: InputDecoration(
+                    hintText: 'Cerca ente...',
+                    hintStyle: const TextStyle(
+                      color: Colors.white38,
+                      fontSize: 16,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Colors.white54,
+                      size: 24,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white.withAlpha(20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _add,
-            tooltip: 'Nuovo ente',
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: _add,
+              tooltip: 'Nuovo ente',
+            ),
           ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _enti.isEmpty
+          : _filtered.isEmpty
           ? Center(child: Text('Nessun ente', style: t.textTheme.bodyMedium))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: _enti.length,
+              itemCount: _filtered.length,
               itemBuilder: (_, i) {
-                final e = _enti[i];
+                final e = _filtered[i];
                 return Card(
                   margin: const EdgeInsets.only(bottom: 10),
                   child: ListTile(
@@ -186,6 +273,37 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
                 );
               },
             ),
+      bottomNavigationBar: isMobile
+          ? Container(
+              width: double.infinity,
+              height: 50,
+              color: Theme.of(context).primaryColor,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Ink(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            right: BorderSide(color: Colors.white12),
+                          ),
+                        ),
+                        child: InkWell(
+                          splashColor: const Color(0xFFF08A5D).withAlpha(60),
+                          highlightColor: const Color(0xFFF08A5D).withAlpha(30),
+                          onTap: _add,
+                          child: const Center(
+                            child: Icon(Icons.add, color: Color(0xFFF08A5D)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : null,
     );
   }
 }
