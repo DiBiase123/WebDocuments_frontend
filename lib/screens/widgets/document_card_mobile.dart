@@ -72,7 +72,7 @@ class DocumentCardMobile extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       formattedDate,
-                      style: const TextStyle(color: Colors.white, fontSize: 18),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ],
                 ),

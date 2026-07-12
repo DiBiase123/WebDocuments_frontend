@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
+import 'package:flutter/foundation.dart';
 
 class WebDocumentsLogin extends StatefulWidget {
   const WebDocumentsLogin({super.key});
@@ -11,8 +12,12 @@ class WebDocumentsLogin extends StatefulWidget {
 }
 
 class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(
+    text: kDebugMode ? 'giulianofgfr84@gmail.com' : '',
+  );
+  final _passwordController = TextEditingController(
+    text: kDebugMode ? 'Coccodrillo1917!' : '',
+  );
   final _formKey = GlobalKey<FormState>();
   final _service = WebDocumentsService();
   bool _isLoading = false;

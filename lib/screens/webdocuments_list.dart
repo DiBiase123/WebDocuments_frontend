@@ -4,11 +4,10 @@ import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/pdf_by_ente.dart';
-import 'package:webdocuments/screens/pdf_by_date.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/list_app_bar.dart';
 import 'package:webdocuments/screens/widgets/list_footer.dart';
-import 'package:webdocuments/screens/widgets/desktop_buttons.dart';
+import 'package:webdocuments/screens/widgets/month_section.dart';
 import 'package:webdocuments/screens/widgets/document_card_mobile.dart';
 import 'package:webdocuments/screens/widgets/document_card_desktop.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
@@ -26,7 +25,10 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   final _searchCtl = TextEditingController();
   final _scrollCtl = ScrollController();
   List<dynamic> _docs = [], _filtered = [];
-  bool _loading = true, _showAppBar = true, _isAdmin = false;
+  bool _loading = true,
+      _showAppBar = true,
+      _isAdmin = false,
+      _ascending = false;
   String? _error;
   double _lastOffset = 0;
 
@@ -65,10 +67,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     try {
       final docs = await _svc.getDocuments();
       if (mounted) {
-        docs.sort(
-          (a, b) =>
-              (b['documentDate'] ?? '').compareTo(a['documentDate'] ?? ''),
-        );
+        _sort(docs);
         setState(() {
           _docs = docs;
           _filtered = docs;
@@ -83,6 +82,22 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         });
       }
     }
+  }
+
+  void _sort(List<dynamic> docs) {
+    docs.sort(
+      (a, b) => _ascending
+          ? (a['documentDate'] ?? '').compareTo(b['documentDate'] ?? '')
+          : (b['documentDate'] ?? '').compareTo(a['documentDate'] ?? ''),
+    );
+  }
+
+  void _toggleOrder() {
+    setState(() {
+      _ascending = !_ascending;
+      _sort(_docs);
+      _filtered = _docs;
+    });
   }
 
   Future<void> _checkAdmin() async {
@@ -133,6 +148,29 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
           .toList() ??
       [];
 
+  String _monthLabel(String dateStr) {
+    try {
+      final d = DateTime.parse(dateStr);
+      const months = [
+        'Gen',
+        'Feb',
+        'Mar',
+        'Apr',
+        'Mag',
+        'Giu',
+        'Lug',
+        'Ago',
+        'Set',
+        'Ott',
+        'Nov',
+        'Dic',
+      ];
+      return '${months[d.month - 1]} ${d.year}';
+    } catch (_) {
+      return '';
+    }
+  }
+
   @override
   void dispose() {
     _searchCtl.dispose();
@@ -143,6 +181,15 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
+
+    final grouped = <String, List<dynamic>>{};
+    for (final d in _filtered) {
+      final m = _monthLabel(d['documentDate'] ?? '');
+      grouped.putIfAbsent(m, () => []).add(d);
+    }
+    final months = grouped.keys.toList();
+    months.sort((a, b) => _ascending ? a.compareTo(b) : b.compareTo(a));
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(_showAppBar ? 70 : 0),
@@ -164,16 +211,67 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                   onEnte: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
                   ),
-                  onDate: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
-                  ),
+                  onDate: _toggleOrder,
                 )
               : const SizedBox.shrink(),
         ),
       ),
       body: Column(
         children: [
-          if (!isMobile) DesktopButtons(docs: _docs),
+          if (!isMobile)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Row(
+                children: [
+                  const Spacer(),
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
+                    ),
+                    icon: const Icon(Icons.business, size: 32),
+                    label: const Text('Enti', style: TextStyle(fontSize: 22)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
+                      foregroundColor: const Color(0xFFF08A5D),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                    onPressed: _toggleOrder,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
+                      foregroundColor: const Color(0xFF4ECDC4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 18,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.schedule, size: 28),
+                        const SizedBox(width: 8),
+                        Icon(
+                          _ascending
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward,
+                          size: 28,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _ascending ? 'Crescente' : 'Decrescente',
+                          style: const TextStyle(fontSize: 22),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
@@ -204,31 +302,44 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                 : ListView.builder(
                     controller: _scrollCtl,
                     padding: const EdgeInsets.all(16),
-                    itemCount: _filtered.length,
+                    itemCount: months.length,
                     itemBuilder: (_, i) {
-                      final d = _filtered[i], en = _entiNomi(d);
-                      return isMobile
-                          ? DocumentCardMobile(
-                              doc: d,
-                              formattedDate: _fmt(d['documentDate'] ?? ''),
-                              entiNomi: en,
-                              onPreview: () => _pdf.open(d),
-                              onDownload: () => _pdf.download(d),
-                            )
-                          : DocumentCardDesktop(
-                              doc: d,
-                              formattedDate: _fmt(d['documentDate'] ?? ''),
-                              entiNomi: en,
-                              onPreview: () => _pdf.open(d),
-                              onDownload: () => _pdf.download(d),
-                            );
+                      final m = months[i];
+                      final cards = grouped[m]!.map((d) {
+                        final en = _entiNomi(d);
+                        return isMobile
+                            ? DocumentCardMobile(
+                                doc: d,
+                                formattedDate: _fmt(d['documentDate'] ?? ''),
+                                entiNomi: en,
+                                onPreview: () => _pdf.open(d),
+                                onDownload: () => _pdf.download(d),
+                              )
+                            : DocumentCardDesktop(
+                                doc: d,
+                                formattedDate: _fmt(d['documentDate'] ?? ''),
+                                entiNomi: en,
+                                onPreview: () => _pdf.open(d),
+                                onDownload: () => _pdf.download(d),
+                              );
+                      }).toList();
+                      return MonthSection(
+                        month: m,
+                        docCount: cards.length,
+                        cards: cards,
+                      );
                     },
                   ),
           ),
         ],
       ),
       bottomNavigationBar: isMobile
-          ? ListFooter(docs: _docs, isAdmin: _isAdmin)
+          ? ListFooter(
+              docs: _docs,
+              isAdmin: _isAdmin,
+              ascending: _ascending,
+              onToggleOrder: _toggleOrder,
+            )
           : null,
     );
   }
