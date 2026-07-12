@@ -7,6 +7,8 @@ import 'package:webdocuments/screens/pdf_by_ente.dart';
 import 'package:webdocuments/screens/pdf_by_date.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/list_app_bar.dart';
+import 'package:webdocuments/screens/widgets/list_footer.dart';
+import 'package:webdocuments/screens/widgets/desktop_buttons.dart';
 import 'package:webdocuments/screens/widgets/document_card_mobile.dart';
 import 'package:webdocuments/screens/widgets/document_card_desktop.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
@@ -23,12 +25,9 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   final _auth = AuthStorage();
   final _searchCtl = TextEditingController();
   final _scrollCtl = ScrollController();
-  List<dynamic> _docs = [];
-  List<dynamic> _filteredDocs = [];
-  bool _loading = true;
+  List<dynamic> _docs = [], _filtered = [];
+  bool _loading = true, _showAppBar = true, _isAdmin = false;
   String? _error;
-  bool _isAdmin = false;
-  bool _showAppBar = true;
   double _lastOffset = 0;
 
   @override
@@ -36,22 +35,22 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     super.initState();
     _checkAuth();
     _scrollCtl.addListener(() {
-      final offset = _scrollCtl.offset;
-      if (offset > _lastOffset && offset > 70 && _showAppBar) {
-        setState(() => _showAppBar = false);
-      } else if (offset < _lastOffset && !_showAppBar) {
-        setState(() => _showAppBar = true);
+      final o = _scrollCtl.offset;
+      if ((o > _lastOffset && o > 70 && _showAppBar) ||
+          (o < _lastOffset && !_showAppBar)) {
+        setState(() => _showAppBar = !_showAppBar);
       }
-      _lastOffset = offset;
+      _lastOffset = o;
     });
   }
 
   Future<void> _checkAuth() async {
-    final auth = await _auth.loadAuthData();
-    if (auth == null && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
-      );
+    if (await _auth.loadAuthData() == null) {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
+        );
+      }
       return;
     }
     _load();
@@ -72,14 +71,14 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         );
         setState(() {
           _docs = docs;
-          _filteredDocs = docs;
+          _filtered = docs;
           _loading = false;
         });
       }
     } catch (_) {
       if (mounted) {
         setState(() {
-          _error = 'Errore nel caricamento';
+          _error = 'Errore caricamento';
           _loading = false;
         });
       }
@@ -87,39 +86,34 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   }
 
   Future<void> _checkAdmin() async {
-    final auth = await _auth.loadAuthData();
-    if (auth == null) {
+    final a = await _auth.loadAuthData();
+    if (a == null) {
       return;
     }
-    final parts = auth['token']!.split('.');
-    if (parts.length == 3) {
-      final p = jsonDecode(
-        utf8.decode(base64.decode(base64.normalize(parts[1]))),
-      );
-      if (mounted) {
-        setState(() {
-          _isAdmin = p['role'] == 'ADMIN';
-        });
-      }
+    final p = a['token']!.split('.');
+    if (p.length != 3) {
+      return;
+    }
+    final d = jsonDecode(utf8.decode(base64.decode(base64.normalize(p[1]))));
+    if (mounted) {
+      setState(() => _isAdmin = d['role'] == 'ADMIN');
     }
   }
 
   void _onSearch(String q) {
     final f = q.toLowerCase();
-    setState(() {
-      _filteredDocs = f.isEmpty
+    setState(
+      () => _filtered = f.isEmpty
           ? _docs
-          : _docs.where((d) {
-              return (d['fileName'] ?? '').toLowerCase().contains(f) ||
-                  (d['description'] ?? '').toLowerCase().contains(f) ||
-                  ((d['enti'] as List?)
-                              ?.map((e) => e['ente']?['nome'] ?? '')
-                              .join(' ') ??
-                          '')
-                      .toLowerCase()
-                      .contains(f);
-            }).toList();
-    });
+          : _docs
+                .where(
+                  (d) =>
+                      '${d['fileName'] ?? ''} ${d['description'] ?? ''} ${(d['enti'] as List?)?.map((e) => e['ente']?['nome'] ?? '').join(' ') ?? ''}'
+                          .toLowerCase()
+                          .contains(f),
+                )
+                .toList(),
+    );
   }
 
   String _fmt(String s) {
@@ -162,77 +156,24 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                   searchController: _searchCtl,
                   isAdmin: _isAdmin,
                   isMobile: isMobile,
-                  onDashboard: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (_) => const WebDocumentsDashboard(),
-                      ),
-                    );
-                  },
-                  onEnte: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
-                    );
-                  },
-                  onDate: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
-                    );
-                  },
+                  onDashboard: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => const WebDocumentsDashboard(),
+                    ),
+                  ),
+                  onEnte: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
+                  ),
+                  onDate: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => PdfByDate(docs: _docs)),
+                  ),
                 )
               : const SizedBox.shrink(),
         ),
       ),
       body: Column(
         children: [
-          if (!isMobile)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => PdfByEnte(docs: _docs),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.business, size: 32),
-                    label: const Text('Enti', style: TextStyle(fontSize: 22)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
-                      foregroundColor: const Color(0xFFF08A5D),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 18,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => PdfByDate(docs: _docs),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.calendar_month, size: 32),
-                    label: const Text('Date', style: TextStyle(fontSize: 22)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
-                      foregroundColor: const Color(0xFF4ECDC4),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          if (!isMobile) DesktopButtons(docs: _docs),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
@@ -253,7 +194,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                       ],
                     ),
                   )
-                : _filteredDocs.isEmpty
+                : _filtered.isEmpty
                 ? const Center(
                     child: Text(
                       'Nessun documento',
@@ -263,32 +204,23 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                 : ListView.builder(
                     controller: _scrollCtl,
                     padding: const EdgeInsets.all(16),
-                    itemCount: _filteredDocs.length,
+                    itemCount: _filtered.length,
                     itemBuilder: (_, i) {
-                      final d = _filteredDocs[i];
-                      final entiNomi = _entiNomi(d);
+                      final d = _filtered[i], en = _entiNomi(d);
                       return isMobile
                           ? DocumentCardMobile(
                               doc: d,
                               formattedDate: _fmt(d['documentDate'] ?? ''),
-                              entiNomi: entiNomi,
-                              onPreview: () {
-                                _pdf.open(d);
-                              },
-                              onDownload: () {
-                                _pdf.download(d);
-                              },
+                              entiNomi: en,
+                              onPreview: () => _pdf.open(d),
+                              onDownload: () => _pdf.download(d),
                             )
                           : DocumentCardDesktop(
                               doc: d,
                               formattedDate: _fmt(d['documentDate'] ?? ''),
-                              entiNomi: entiNomi,
-                              onPreview: () {
-                                _pdf.open(d);
-                              },
-                              onDownload: () {
-                                _pdf.download(d);
-                              },
+                              entiNomi: en,
+                              onPreview: () => _pdf.open(d),
+                              onDownload: () => _pdf.download(d),
                             );
                     },
                   ),
@@ -296,105 +228,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         ],
       ),
       bottomNavigationBar: isMobile
-          ? Container(
-              width: double.infinity,
-              height: 50,
-              color: Theme.of(context).primaryColor,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Ink(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            right: BorderSide(color: Colors.white12),
-                          ),
-                        ),
-                        child: InkWell(
-                          splashColor: const Color(0xFFF08A5D).withAlpha(60),
-                          highlightColor: const Color(0xFFF08A5D).withAlpha(30),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => PdfByEnte(docs: _docs),
-                              ),
-                            );
-                          },
-                          child: const SizedBox.expand(
-                            child: Icon(
-                              Icons.business,
-                              color: Color(0xFFF08A5D),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Ink(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            right: BorderSide(color: Colors.white12),
-                          ),
-                        ),
-                        child: InkWell(
-                          splashColor: const Color(0xFF4ECDC4).withAlpha(60),
-                          highlightColor: const Color(0xFF4ECDC4).withAlpha(30),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => PdfByDate(docs: _docs),
-                              ),
-                            );
-                          },
-                          child: const SizedBox.expand(
-                            child: Icon(
-                              Icons.calendar_month,
-                              color: Color(0xFF4ECDC4),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (_isAdmin)
-                    Expanded(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Ink(
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              right: BorderSide(color: Colors.white12),
-                            ),
-                          ),
-                          child: InkWell(
-                            splashColor: const Color(0xFFE43F5A).withAlpha(60),
-                            highlightColor: const Color(
-                              0xFFE43F5A,
-                            ).withAlpha(30),
-                            onTap: () {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (_) => const WebDocumentsDashboard(),
-                                ),
-                              );
-                            },
-                            child: const SizedBox.expand(
-                              child: Icon(
-                                Icons.dashboard,
-                                color: Color(0xFFE43F5A),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            )
+          ? ListFooter(docs: _docs, isAdmin: _isAdmin)
           : null,
     );
   }
