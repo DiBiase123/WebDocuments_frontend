@@ -45,3 +45,6 @@ app.*.map.json
 /android/app/release
 .metadata
 test/
+lib/dev_credentials.dart
+lib/dev_credentials.dart
+lib/dev_credentials.dart
