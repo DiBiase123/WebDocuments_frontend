@@ -29,10 +29,12 @@ class _MonthSectionState extends State<MonthSection> {
     final t = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 12),
-      child: Card(
-        color: const Color(0xFF1A2940),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: EdgeInsets.zero,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: const Color(0xFF141E33),
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Column(
           children: [
             InkWell(
@@ -90,16 +92,10 @@ class _MonthSectionState extends State<MonthSection> {
             AnimatedCrossFade(
               firstChild: const SizedBox.shrink(),
               secondChild: Container(
-                color: const Color(0xFF1A2940),
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF162447),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(children: widget.cards),
-                ),
+                width: double.infinity,
+                color: const Color(0xFF0F1629),
+                padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+                child: Column(children: widget.cards),
               ),
               crossFadeState: _open
                   ? CrossFadeState.showSecond

@@ -21,7 +21,7 @@ class DocumentCardDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -49,13 +49,10 @@ class DocumentCardDesktop extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 18,
-                      color: t.colorScheme.primary,
+                    Text(
+                      formattedDate,
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    const SizedBox(width: 6),
-                    Text(formattedDate, style: t.textTheme.bodySmall),
                   ],
                 ),
               ],

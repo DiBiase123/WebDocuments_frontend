@@ -21,11 +21,10 @@ class DocumentCardMobile extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -34,20 +33,6 @@ class DocumentCardMobile extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(12),
               ),
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.amber.shade200.withAlpha(50),
-                  width: 1,
-                ),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(40),
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                ),
-              ],
             ),
             child: Wrap(
               alignment: WrapAlignment.spaceBetween,
@@ -64,12 +49,6 @@ class DocumentCardMobile extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 18,
-                      color: t.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 6),
                     Text(
                       formattedDate,
                       style: const TextStyle(color: Colors.white, fontSize: 16),
@@ -79,7 +58,6 @@ class DocumentCardMobile extends StatelessWidget {
               ],
             ),
           ),
-          // Corpo
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -108,7 +86,6 @@ class DocumentCardMobile extends StatelessWidget {
               ],
             ),
           ),
-          // Footer
           Row(
             children: [
               Expanded(

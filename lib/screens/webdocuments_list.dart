@@ -307,7 +307,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                       final m = months[i];
                       final cards = grouped[m]!.map((d) {
                         final en = _entiNomi(d);
-                        return isMobile
+                        final card = isMobile
                             ? DocumentCardMobile(
                                 doc: d,
                                 formattedDate: _fmt(d['documentDate'] ?? ''),
@@ -322,6 +322,10 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                                 onPreview: () => _pdf.open(d),
                                 onDownload: () => _pdf.download(d),
                               );
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: card,
+                        );
                       }).toList();
                       return MonthSection(
                         month: m,
