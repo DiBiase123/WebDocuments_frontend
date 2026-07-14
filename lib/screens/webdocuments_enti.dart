@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/screens/widgets/widgets_enti/enti_dialog.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_desktop.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_mobile.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_desktop_button.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_list.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_footer.dart';
+import 'package:webdocuments/screens/widgets/widgets_enti/enti_dialog.dart';
 
 class WebDocumentsEnti extends StatefulWidget {
   const WebDocumentsEnti({super.key});
@@ -16,13 +16,25 @@ class WebDocumentsEnti extends StatefulWidget {
 class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   final _svc = WebDocumentsService();
   final _searchCtl = TextEditingController();
+  final _scrollCtl = ScrollController();
   List<dynamic> _enti = [], _filtered = [];
-  bool _loading = true;
+  bool _loading = true, _showAppBar = true;
+  double _lastOffset = 0;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _scrollCtl.addListener(() {
+      final o = _scrollCtl.offset;
+      if (o <= 0) {
+        if (!_showAppBar) setState(() => _showAppBar = true);
+      } else if ((o > _lastOffset && o > 70 && _showAppBar) ||
+          (o < _lastOffset && !_showAppBar)) {
+        setState(() => _showAppBar = !_showAppBar);
+      }
+      _lastOffset = o;
+    });
   }
 
   Future<void> _load() async {
@@ -116,6 +128,7 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   @override
   void dispose() {
     _searchCtl.dispose();
+    _scrollCtl.dispose();
     super.dispose();
   }
 
@@ -124,19 +137,25 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
-        child: isMobile
-            ? EntiAppBarMobile(
-                searchController: _searchCtl,
-                onSearch: _onSearch,
-                service: _svc,
-              )
-            : EntiAppBarDesktop(
-                searchController: _searchCtl,
-                onSearch: _onSearch,
-                onBack: () => Navigator.pop(context),
-                service: _svc,
-              ),
+        preferredSize: Size.fromHeight(_showAppBar ? 70 : 0),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: _showAppBar ? 70 : 0,
+          child: _showAppBar
+              ? isMobile
+                    ? EntiAppBarMobile(
+                        searchController: _searchCtl,
+                        onSearch: _onSearch,
+                        service: _svc,
+                      )
+                    : EntiAppBarDesktop(
+                        searchController: _searchCtl,
+                        onSearch: _onSearch,
+                        onBack: () => Navigator.pop(context),
+                        service: _svc,
+                      )
+              : const SizedBox.shrink(),
+        ),
       ),
       body: Column(
         children: [
@@ -147,6 +166,7 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
               loading: _loading,
               onEdit: _edit,
               onDelete: _delete,
+              scrollController: _scrollCtl,
             ),
           ),
         ],

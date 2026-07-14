@@ -6,6 +6,7 @@ class EntiList extends StatelessWidget {
   final bool loading;
   final void Function(String id, String nome) onEdit;
   final void Function(String id) onDelete;
+  final ScrollController scrollController;
 
   const EntiList({
     super.key,
@@ -13,6 +14,7 @@ class EntiList extends StatelessWidget {
     required this.loading,
     required this.onEdit,
     required this.onDelete,
+    required this.scrollController,
   });
 
   @override
@@ -25,6 +27,7 @@ class EntiList extends StatelessWidget {
       return Center(child: Text('Nessun ente', style: t.textTheme.bodyMedium));
     }
     return ListView.builder(
+      controller: scrollController,
       padding: const EdgeInsets.all(16),
       itemCount: enti.length,
       itemBuilder: (_, i) {

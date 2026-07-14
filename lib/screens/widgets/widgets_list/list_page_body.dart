@@ -38,9 +38,8 @@ class ListPageBody extends StatelessWidget {
         if (!isMobile)
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            height: showAppBar ? 70 : 0,
-            child: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
+            height: showAppBar ? 80 : 0,
+            child: ClipRect(
               child: ListDesktopButtons(
                 docs: docs,
                 ascending: ascending,
