@@ -39,6 +39,7 @@ class ListPageBody extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             height: showAppBar ? 80 : 0,
+            color: Colors.transparent,
             child: ClipRect(
               child: ListDesktopButtons(
                 docs: docs,
