@@ -5,10 +5,11 @@ import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/pdf_by_ente.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
-import 'package:webdocuments/screens/widgets/list_app_bar.dart';
 import 'package:webdocuments/screens/widgets/list_footer.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_page_body.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_card_builder.dart';
+import 'package:webdocuments/screens/widgets/widgets_list/list_app_bar_desktop.dart';
+import 'package:webdocuments/screens/widgets/widgets_list/list_app_bar_mobile.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
 
 class WebDocumentsList extends StatefulWidget {
@@ -145,22 +146,30 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
           duration: const Duration(milliseconds: 200),
           height: _showAppBar ? 70 : 0,
           child: _showAppBar
-              ? ListAppBar(
-                  onSearch: _onSearch,
-                  service: _svc,
-                  searchController: _searchCtl,
-                  isAdmin: _isAdmin,
-                  isMobile: isMobile,
-                  onDashboard: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const WebDocumentsDashboard(),
-                    ),
-                  ),
-                  onEnte: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => PdfByEnte(docs: _docs)),
-                  ),
-                  onDate: _toggleOrder,
-                )
+              ? isMobile
+                    ? ListAppBarMobile(
+                        searchController: _searchCtl,
+                        onSearch: _onSearch,
+                        onEnte: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => PdfByEnte(docs: _docs),
+                          ),
+                        ),
+                        onDate: _toggleOrder,
+                        service: _svc,
+                      )
+                    : ListAppBarDesktop(
+                        searchController: _searchCtl,
+                        onSearch: _onSearch,
+                        isAdmin: _isAdmin,
+                        onDashboard: () =>
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => const WebDocumentsDashboard(),
+                              ),
+                            ),
+                        service: _svc,
+                      )
               : const SizedBox.shrink(),
         ),
       ),
