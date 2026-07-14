@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/widgets/logout_button.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 
 class ListAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -56,18 +56,7 @@ class ListAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         Padding(
           padding: const EdgeInsets.only(right: 12),
-          child: IconButton(
-            icon: const Icon(Icons.power_settings_new),
-            onPressed: () async {
-              await service.logout();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
-                );
-              }
-            },
-            tooltip: 'Esci',
-          ),
+          child: LogoutButton(service: service),
         ),
       ],
     );
