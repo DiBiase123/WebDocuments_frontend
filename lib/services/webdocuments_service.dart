@@ -76,11 +76,16 @@ class WebDocumentsService {
     String? documentDate,
     List<String>? enteIds,
   }) async {
-    final body = <String, dynamic>{
-      if (description != null) 'description': description,
-      if (documentDate != null) 'documentDate': documentDate,
-      if (enteIds != null) 'enteIds': enteIds,
-    };
+    final body = <String, dynamic>{};
+    if (description != null) {
+      body['description'] = description;
+    }
+    if (documentDate != null) {
+      body['documentDate'] = documentDate;
+    }
+    if (enteIds != null) {
+      body['enteIds'] = enteIds;
+    }
     final r = await _dio.put(
       '/api/webdocuments/$id',
       data: body,
