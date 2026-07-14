@@ -157,6 +157,14 @@ class WebDocumentsService {
           userId: d['user']['id'],
           username: d['user']['username'],
         );
+        final role = await getMyRole();
+        await _authStorage.saveAuthData(
+          token: d['token'],
+          refreshToken: d['refreshToken'],
+          userId: d['user']['id'],
+          username: d['user']['username'],
+          role: role,
+        );
         return d;
       }
       throw Exception(r.data['message'] ?? 'Login fallito');
@@ -165,6 +173,46 @@ class WebDocumentsService {
         e.response?.data?['message'] ?? 'Riprovare server occupato',
       );
     }
+  }
+
+  Future<String> getMyRole() async {
+    try {
+      final r = await _dio.get(
+        '/api/roles/me',
+        options: Options(headers: await _getHeaders()),
+      );
+      if (r.data['success'] == true) return r.data['data']['role'] ?? 'USER';
+      return 'USER';
+    } catch (_) {
+      return 'USER';
+    }
+  }
+
+  Future<String?> getMyUserId() async {
+    final auth = await _authStorage.loadAuthData();
+    return auth?['userId'];
+  }
+
+  Future<List<dynamic>> getUsers() async {
+    try {
+      final r = await _dio.get(
+        '/api/roles/users',
+        options: Options(headers: await _getHeaders()),
+      );
+      if (r.data['success'] == true) return r.data['data'] ?? [];
+      return [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> updateUserRole(String id, String role, String? adminId) async {
+    final r = await _dio.put(
+      '/api/roles/update',
+      data: {'id': id, 'role': role, 'adminId': adminId},
+      options: Options(headers: await _getHeaders()),
+    );
+    if (r.data['success'] != true) throw Exception('Errore');
   }
 
   Future<void> logout() async {

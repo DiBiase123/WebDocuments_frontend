@@ -52,21 +52,30 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
       if (!mounted) {
         return;
       }
-      final tokenStr = data['token'] as String?;
-      String userRole = 'USER';
-      if (tokenStr != null) {
-        final parts = tokenStr.split('.');
-        if (parts.length == 3) {
-          final payload = parts[1],
-              normalized = base64.normalize(payload),
-              decoded = utf8.decode(base64.decode(normalized)),
-              payloadMap = jsonDecode(decoded);
-          userRole = payloadMap['role'] ?? 'USER';
+
+      // Usa il ruolo da user_roles (aggiornato) invece del token JWT
+      final role = await _service.getMyRole();
+      String userRole = role;
+
+      if (userRole == 'USER') {
+        final tokenStr = data['token'] as String?;
+        if (tokenStr != null) {
+          final parts = tokenStr.split('.');
+          if (parts.length == 3) {
+            final payload = parts[1],
+                normalized = base64.normalize(payload),
+                decoded = utf8.decode(base64.decode(normalized)),
+                payloadMap = jsonDecode(decoded);
+            if (payloadMap['role'] == 'ADMIN') userRole = 'ADMIN';
+          }
         }
       }
+
+      if (!mounted) return;
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => userRole == 'ADMIN'
+          builder: (_) => userRole == 'ADMIN' || userRole == 'SUPER_ADMIN'
               ? const WebDocumentsDashboard()
               : const WebDocumentsList(),
         ),

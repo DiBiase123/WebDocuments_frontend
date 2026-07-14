@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/webdocuments_users.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/document_form_dialog.dart';
@@ -37,6 +38,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       );
       return;
     }
+    debugPrint('🔑 Mio ruolo: ${auth?['role']}');
     if (mounted) {
       _load();
     }
@@ -291,10 +293,24 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
                     }
                   },
                   icon: const Icon(Icons.business, size: 22),
-                  label: const Text('Gestione enti'),
+                  label: const Text('Enti'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
                     foregroundColor: const Color(0xFFF08A5D),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const WebDocumentsUsers(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.people, size: 22),
+                  label: const Text('Utenti'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
+                    foregroundColor: const Color(0xFF4ECDC4),
                   ),
                 ),
               ],
