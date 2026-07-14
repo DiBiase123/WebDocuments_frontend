@@ -13,8 +13,9 @@ class LogoutButton extends StatelessWidget {
       onPressed: () async {
         await service.logout();
         if (context.mounted) {
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
+            (route) => false,
           );
         }
       },

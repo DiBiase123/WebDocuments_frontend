@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:webdocuments/config.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 
@@ -28,34 +27,25 @@ class WebDocumentsService {
 
   Future<List<dynamic>> getDocuments() async {
     try {
-      final response = await _dio.get(
+      final r = await _dio.get(
         '/api/webdocuments',
         options: Options(headers: await _getHeaders()),
       );
-      if (response.data['success'] == true) {
-        return response.data['data'] ?? [];
-      }
-      throw Exception('Errore nel caricamento documenti');
-    } catch (e) {
-      debugPrint('❌ getDocuments error: $e');
-      throw Exception('Errore nel caricamento documenti');
+      if (r.data['success'] == true) return r.data['data'] ?? [];
+      throw Exception('Errore');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) return [];
+      rethrow;
     }
   }
 
   Future<Map<String, dynamic>> getDocumentById(String id) async {
-    try {
-      final response = await _dio.get(
-        '/api/webdocuments/$id',
-        options: Options(headers: await _getHeaders()),
-      );
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      }
-      throw Exception('Documento non trovato');
-    } catch (e) {
-      debugPrint('❌ getDocumentById error: $e');
-      throw Exception('Documento non trovato');
-    }
+    final r = await _dio.get(
+      '/api/webdocuments/$id',
+      options: Options(headers: await _getHeaders()),
+    );
+    if (r.data['success'] == true) return r.data['data'];
+    throw Exception('Documento non trovato');
   }
 
   Future<Map<String, dynamic>> createDocument({
@@ -65,27 +55,19 @@ class WebDocumentsService {
     required List<int> fileBytes,
     required String fileName,
   }) async {
-    try {
-      final headers = await _getHeaders();
-      final response = await _dio.post(
-        '/api/webdocuments',
-        data: {
-          'description': description,
-          'documentDate': documentDate,
-          'enteIds': enteIds,
-          'fileName': fileName,
-          'fileData': base64.encode(fileBytes),
-        },
-        options: Options(headers: headers),
-      );
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      }
-      throw Exception(response.data['message'] ?? 'Errore nel caricamento');
-    } catch (e) {
-      debugPrint('❌ createDocument error: $e');
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+    final r = await _dio.post(
+      '/api/webdocuments',
+      data: {
+        'description': description,
+        'documentDate': documentDate,
+        'enteIds': enteIds,
+        'fileName': fileName,
+        'fileData': base64.encode(fileBytes),
+      },
+      options: Options(headers: await _getHeaders()),
+    );
+    if (r.data['success'] == true) return r.data['data'];
+    throw Exception(r.data['message'] ?? 'Errore');
   }
 
   Future<void> updateDocument({
@@ -94,146 +76,99 @@ class WebDocumentsService {
     String? documentDate,
     List<String>? enteIds,
   }) async {
-    try {
-      final headers = await _getHeaders();
-      final body = <String, dynamic>{};
-      if (description != null) {
-        body['description'] = description;
-      }
-      if (documentDate != null) {
-        body['documentDate'] = documentDate;
-      }
-      if (enteIds != null) {
-        body['enteIds'] = enteIds;
-      }
-      final response = await _dio.put(
-        '/api/webdocuments/$id',
-        data: body,
-        options: Options(headers: headers),
-      );
-      if (response.data['success'] != true) {
-        throw Exception('Errore nella modifica documento');
-      }
-    } catch (e) {
-      debugPrint('❌ updateDocument error: $e');
-      throw Exception('Errore nella modifica documento');
-    }
+    final body = <String, dynamic>{
+      if (description != null) 'description': description,
+      if (documentDate != null) 'documentDate': documentDate,
+      if (enteIds != null) 'enteIds': enteIds,
+    };
+    final r = await _dio.put(
+      '/api/webdocuments/$id',
+      data: body,
+      options: Options(headers: await _getHeaders()),
+    );
+    if (r.data['success'] != true) throw Exception('Errore');
   }
 
   Future<void> deleteDocument(String id) async {
-    try {
-      final headers = await _getHeaders();
-      final response = await _dio.delete(
-        '/api/webdocuments/$id',
-        options: Options(headers: headers),
-      );
-      if (response.data['success'] != true) {
-        throw Exception('Errore nell\'eliminazione documento');
-      }
-    } catch (e) {
-      debugPrint('❌ deleteDocument error: $e');
-      throw Exception('Errore nell\'eliminazione documento');
-    }
+    final r = await _dio.delete(
+      '/api/webdocuments/$id',
+      options: Options(headers: await _getHeaders()),
+    );
+    if (r.data['success'] != true) throw Exception('Errore');
   }
 
   Future<List<dynamic>> getEnti() async {
     try {
-      final response = await _dio.get(
+      final r = await _dio.get(
         '/api/enti',
         options: Options(headers: await _getHeaders()),
       );
-      if (response.data['success'] == true) {
-        return response.data['data'] ?? [];
-      }
-      throw Exception('Errore nel caricamento enti');
-    } catch (e) {
-      debugPrint('❌ getEnti error: $e');
-      throw Exception('Errore nel caricamento enti');
+      if (r.data['success'] == true) return r.data['data'] ?? [];
+      throw Exception('Errore');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) return [];
+      rethrow;
     }
   }
 
   Future<Map<String, dynamic>> createEnte(String nome) async {
-    try {
-      final response = await _dio.post(
-        '/api/enti',
-        data: {'nome': nome},
-        options: Options(headers: await _getHeaders()),
-      );
-      if (response.data['success'] == true) {
-        return response.data['data'];
-      }
-      throw Exception(response.data['message'] ?? 'Errore');
-    } catch (e) {
-      debugPrint('❌ createEnte error: $e');
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+    final r = await _dio.post(
+      '/api/enti',
+      data: {'nome': nome},
+      options: Options(headers: await _getHeaders()),
+    );
+    if (r.data['success'] == true) return r.data['data'];
+    throw Exception(r.data['message'] ?? 'Errore');
   }
 
   Future<void> deleteEnte(String id) async {
-    try {
-      final response = await _dio.delete(
-        '/api/enti/$id',
-        options: Options(headers: await _getHeaders()),
-      );
-      if (response.data['success'] != true) {
-        throw Exception('Errore');
-      }
-    } catch (e) {
-      debugPrint('❌ deleteEnte error: $e');
-      throw Exception('Errore');
-    }
+    final r = await _dio.delete(
+      '/api/enti/$id',
+      options: Options(headers: await _getHeaders()),
+    );
+    if (r.data['success'] != true) throw Exception('Errore');
   }
 
   Future<void> updateEnte(String id, String nome) async {
-    try {
-      final headers = await _getHeaders();
-      final response = await _dio.put(
-        '/api/enti/$id',
-        data: {'nome': nome},
-        options: Options(headers: headers),
-      );
-      if (response.data['success'] != true) {
-        throw Exception('Errore');
-      }
-    } catch (e) {
-      debugPrint('❌ updateEnte error: $e');
-      throw Exception('Errore');
-    }
+    final r = await _dio.put(
+      '/api/enti/$id',
+      data: {'nome': nome},
+      options: Options(headers: await _getHeaders()),
+    );
+    if (r.data['success'] != true) throw Exception('Errore');
   }
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final response = await _dio.post(
+      final r = await _dio.post(
         '/api/auth/login',
         data: {'email': email, 'password': password},
       );
-      if (response.data['success'] == true) {
-        final data = response.data['data'];
+      if (r.data['success'] == true) {
+        final d = r.data['data'];
         await _authStorage.saveAuthData(
-          token: data['token'],
-          refreshToken: data['refreshToken'],
-          userId: data['user']['id'],
-          username: data['user']['username'],
+          token: d['token'],
+          refreshToken: d['refreshToken'],
+          userId: d['user']['id'],
+          username: d['user']['username'],
         );
-        return data;
+        return d;
       }
-      throw Exception(response.data['message'] ?? 'Login fallito');
+      throw Exception(r.data['message'] ?? 'Login fallito');
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? 'Riprovare server occupato';
-      throw Exception(msg);
-    } catch (e) {
-      debugPrint('❌ login error: $e');
-      throw Exception('Riprovare server occupato');
+      throw Exception(
+        e.response?.data?['message'] ?? 'Riprovare server occupato',
+      );
     }
   }
 
   Future<void> logout() async {
     try {
-      final headers = await _getHeaders();
-      await _dio.post('/api/auth/logout', options: Options(headers: headers));
-    } catch (e) {
-      debugPrint('❌ logout error: $e');
-    }
+      await _dio.post(
+        '/api/auth/logout',
+        options: Options(headers: await _getHeaders()),
+      );
+    } catch (_) {}
     await _authStorage.clearAuthData();
   }
 }

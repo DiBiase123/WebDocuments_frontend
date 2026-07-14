@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/screens/widgets/ente_badge.dart';
-import 'package:webdocuments/screens/widgets/logout_button.dart';
+import 'package:webdocuments/screens/widgets/widgets_enti/enti_dialog.dart';
+import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_desktop.dart';
+import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_mobile.dart';
+import 'package:webdocuments/screens/widgets/widgets_enti/enti_desktop_button.dart';
+import 'package:webdocuments/screens/widgets/widgets_enti/enti_list.dart';
+import 'package:webdocuments/screens/widgets/widgets_enti/enti_footer.dart';
 
 class WebDocumentsEnti extends StatefulWidget {
   const WebDocumentsEnti({super.key});
@@ -56,77 +60,8 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
     );
   }
 
-  Future<String?> _showEnteDialog({
-    String? initialValue,
-    bool isEdit = false,
-  }) async {
-    return showDialog<String>(
-      context: context,
-      builder: (ctx) {
-        final ctrl = TextEditingController(text: initialValue ?? '');
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            isEdit ? 'Modifica ente' : 'Nuovo ente',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          content: SizedBox(
-            width: 400,
-            child: TextField(
-              controller: ctrl,
-              autofocus: true,
-              style: const TextStyle(fontSize: 20),
-              decoration: InputDecoration(
-                labelText: 'Nome ente',
-                labelStyle: const TextStyle(fontSize: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Theme.of(ctx).colorScheme.surface.withAlpha(100),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-              ),
-              onSubmitted: (v) {
-                if (v.trim().isNotEmpty) Navigator.pop(ctx, v.trim());
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Annulla', style: TextStyle(fontSize: 20)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 14,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(ctx, ctrl.text.trim());
-              },
-              child: Text(
-                isEdit ? 'Salva' : 'Crea',
-                style: const TextStyle(fontSize: 20),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Future<void> _add() async {
-    final nome = await _showEnteDialog();
+    final nome = await showEnteDialog(context);
     if (nome != null && nome.isNotEmpty) {
       try {
         await _svc.createEnte(nome);
@@ -144,7 +79,11 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   }
 
   Future<void> _edit(String id, String nome) async {
-    final newNome = await _showEnteDialog(initialValue: nome, isEdit: true);
+    final newNome = await showEnteDialog(
+      context,
+      initialValue: nome,
+      isEdit: true,
+    );
     if (newNome != null && newNome.isNotEmpty) {
       try {
         await _svc.updateEnte(id, newNome);
@@ -182,224 +121,38 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
-        child: AppBar(
-          automaticallyImplyLeading: false,
-          title: isMobile
-              ? TextField(
-                  controller: _searchCtl,
-                  onChanged: _onSearch,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                  decoration: InputDecoration(
-                    hintText: 'Cerca ente...',
-                    hintStyle: const TextStyle(
-                      color: Colors.white38,
-                      fontSize: 16,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Colors.white54,
-                      size: 24,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white.withAlpha(20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
-                )
-              : Row(
-                  children: [
-                    const Text('WebDocuments'),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: SizedBox(
-                        height: 40,
-                        child: TextField(
-                          controller: _searchCtl,
-                          onChanged: _onSearch,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Cerca ente...',
-                            hintStyle: const TextStyle(
-                              color: Colors.white38,
-                              fontSize: 16,
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.search,
-                              color: Colors.white54,
-                              size: 24,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white.withAlpha(20),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-          actions: [
-            if (!isMobile)
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
-                tooltip: 'Indietro',
+        child: isMobile
+            ? EntiAppBarMobile(
+                searchController: _searchCtl,
+                onSearch: _onSearch,
+                service: _svc,
+              )
+            : EntiAppBarDesktop(
+                searchController: _searchCtl,
+                onSearch: _onSearch,
+                onBack: () => Navigator.pop(context),
+                service: _svc,
               ),
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: LogoutButton(service: _svc),
-            ),
-          ],
-        ),
       ),
       body: Column(
         children: [
-          if (!isMobile)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  ElevatedButton.icon(
-                    onPressed: _add,
-                    icon: const Icon(Icons.add, size: 32),
-                    label: const Text(
-                      'Crea ente',
-                      style: TextStyle(fontSize: 22),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
-                      foregroundColor: const Color(0xFFF08A5D),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          if (!isMobile) EntiDesktopButton(onAdd: _add),
           Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _filtered.isEmpty
-                ? Center(
-                    child: Text('Nessun ente', style: t.textTheme.bodyMedium),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _filtered.length,
-                    itemBuilder: (_, i) {
-                      final e = _filtered[i];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: ListTile(
-                          title: EnteBadge(nome: e['nome'] ?? '', fontSize: 18),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.edit,
-                                  color: Colors.orange,
-                                ),
-                                onPressed: () {
-                                  _edit(e['id'], e['nome']);
-                                },
-                                tooltip: 'Modifica',
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.redAccent,
-                                ),
-                                onPressed: () {
-                                  _delete(e['id']);
-                                },
-                                tooltip: 'Elimina',
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+            child: EntiList(
+              enti: _filtered,
+              loading: _loading,
+              onEdit: _edit,
+              onDelete: _delete,
+            ),
           ),
         ],
       ),
       bottomNavigationBar: isMobile
-          ? Container(
-              width: double.infinity,
-              height: 50,
-              color: Theme.of(context).primaryColor,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Ink(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            right: BorderSide(color: Colors.white12),
-                          ),
-                        ),
-                        child: InkWell(
-                          splashColor: const Color(0xFFF08A5D).withAlpha(60),
-                          highlightColor: const Color(0xFFF08A5D).withAlpha(30),
-                          onTap: () => Navigator.pop(context),
-                          child: const Center(
-                            child: Icon(
-                              Icons.arrow_back,
-                              color: Color(0xFFF08A5D),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Ink(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            right: BorderSide(color: Colors.white12),
-                          ),
-                        ),
-                        child: InkWell(
-                          splashColor: const Color(0xFFF08A5D).withAlpha(60),
-                          highlightColor: const Color(0xFFF08A5D).withAlpha(30),
-                          onTap: _add,
-                          child: const Center(
-                            child: Icon(Icons.add, color: Color(0xFFF08A5D)),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
+          ? EntiFooter(onBack: () => Navigator.pop(context), onAdd: _add)
           : null,
     );
   }
