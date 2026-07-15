@@ -157,7 +157,8 @@ class WebDocumentsService {
           userId: d['user']['id'],
           username: d['user']['username'],
         );
-        final role = await getMyRole();
+        final roleData = await getMyRole();
+        final role = roleData['role'] ?? 'USER';
         await _authStorage.saveAuthData(
           token: d['token'],
           refreshToken: d['refreshToken'],
@@ -175,16 +176,16 @@ class WebDocumentsService {
     }
   }
 
-  Future<String> getMyRole() async {
+  Future<Map<String, dynamic>> getMyRole() async {
     try {
       final r = await _dio.get(
         '/api/roles/me',
         options: Options(headers: await _getHeaders()),
       );
-      if (r.data['success'] == true) return r.data['data']['role'] ?? 'USER';
-      return 'USER';
+      if (r.data['success'] == true) return r.data['data'];
+      return {'role': 'USER'};
     } catch (_) {
-      return 'USER';
+      return {'role': 'USER'};
     }
   }
 

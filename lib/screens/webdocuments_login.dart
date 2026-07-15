@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
@@ -45,7 +44,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
       _errorMessage = null;
     });
     try {
-      final data = await _service.login(
+      await _service.login(
         _emailController.text.trim(),
         _passwordController.text,
       );
@@ -53,23 +52,8 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
         return;
       }
 
-      // Usa il ruolo da user_roles (aggiornato) invece del token JWT
-      final role = await _service.getMyRole();
-      String userRole = role;
-
-      if (userRole == 'USER') {
-        final tokenStr = data['token'] as String?;
-        if (tokenStr != null) {
-          final parts = tokenStr.split('.');
-          if (parts.length == 3) {
-            final payload = parts[1],
-                normalized = base64.normalize(payload),
-                decoded = utf8.decode(base64.decode(normalized)),
-                payloadMap = jsonDecode(decoded);
-            if (payloadMap['role'] == 'ADMIN') userRole = 'ADMIN';
-          }
-        }
-      }
+      final roleData = await _service.getMyRole();
+      String userRole = roleData['role'] ?? 'USER';
 
       if (!mounted) return;
 

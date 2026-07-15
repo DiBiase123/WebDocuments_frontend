@@ -93,14 +93,14 @@ class _WebDocumentsUsersState extends State<WebDocumentsUsers> {
               itemCount: _users.length,
               itemBuilder: (_, i) {
                 final u = _users[i];
-                final isMe = u['userId'] == _myUserId;
+                final isMe = u['id'] == _myUserId;
                 return Card(
                   margin: const EdgeInsets.only(bottom: 10),
                   child: ListTile(
                     title: Text(
                       u['email'] ??
                           u['username'] ??
-                          u['userId']?.substring(0, 8) ??
+                          u['id']?.substring(0, 8) ??
                           '',
                     ),
                     subtitle: Column(
@@ -109,7 +109,7 @@ class _WebDocumentsUsersState extends State<WebDocumentsUsers> {
                         Text('Ruolo: ${u['role']}'),
                         if (u['adminId'] != null)
                           Text(
-                            'Admin: ${_admins.firstWhere((a) => a['userId'] == u['adminId'], orElse: () => {'email': ''})['email'] ?? ''}',
+                            'Admin: ${_admins.firstWhere((a) => a['id'] == u['adminId'], orElse: () => {'email': ''})['email'] ?? ''}',
                             style: const TextStyle(fontSize: 12),
                           ),
                       ],
@@ -158,7 +158,7 @@ class _WebDocumentsUsersState extends State<WebDocumentsUsers> {
                                     ),
                                     ..._admins.map(
                                       (a) => DropdownMenuItem(
-                                        value: a['userId'],
+                                        value: a['id'],
                                         child: Text(
                                           a['email'] ?? a['username'] ?? '',
                                         ),
