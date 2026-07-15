@@ -179,7 +179,7 @@ class WebDocumentsService {
   Future<Map<String, dynamic>> getMyRole() async {
     try {
       final r = await _dio.get(
-        '/api/roles/me',
+        '/api/users/me',
         options: Options(headers: await _getHeaders()),
       );
       if (r.data['success'] == true) return r.data['data'];
@@ -197,7 +197,7 @@ class WebDocumentsService {
   Future<List<dynamic>> getUsers() async {
     try {
       final r = await _dio.get(
-        '/api/roles/users',
+        '/api/users/',
         options: Options(headers: await _getHeaders()),
       );
       if (r.data['success'] == true) return r.data['data'] ?? [];
@@ -209,7 +209,7 @@ class WebDocumentsService {
 
   Future<void> updateUserRole(String id, String role, String? adminId) async {
     final r = await _dio.put(
-      '/api/roles/update',
+      '/api/users/update',
       data: {'id': id, 'role': role, 'adminId': adminId},
       options: Options(headers: await _getHeaders()),
     );
