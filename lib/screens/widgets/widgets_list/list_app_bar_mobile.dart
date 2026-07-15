@@ -7,6 +7,7 @@ class ListAppBarMobile extends StatelessWidget implements PreferredSizeWidget {
   final ValueChanged<String> onSearch;
   final VoidCallback onEnte;
   final VoidCallback onDate;
+  final VoidCallback onDashboard;
   final WebDocumentsService service;
 
   const ListAppBarMobile({
@@ -15,6 +16,7 @@ class ListAppBarMobile extends StatelessWidget implements PreferredSizeWidget {
     required this.onSearch,
     required this.onEnte,
     required this.onDate,
+    required this.onDashboard,
     required this.service,
   });
 
@@ -51,6 +53,11 @@ class ListAppBarMobile extends StatelessWidget implements PreferredSizeWidget {
           icon: const Icon(Icons.calendar_month, color: Color(0xFF4ECDC4)),
           onPressed: onDate,
           tooltip: 'Date',
+        ),
+        IconButton(
+          icon: const Icon(Icons.dashboard),
+          onPressed: onDashboard,
+          tooltip: 'Dashboard',
         ),
         Padding(
           padding: const EdgeInsets.only(right: 12),

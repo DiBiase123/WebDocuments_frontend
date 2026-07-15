@@ -5,6 +5,7 @@ import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/webdocuments_users.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
+import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/document_form_dialog.dart';
 import 'package:webdocuments/screens/widgets/dashboard_app_bar.dart';
@@ -38,7 +39,15 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       );
       return;
     }
-    debugPrint('🔑 Mio ruolo: ${auth?['role']}');
+    // Controlla ruolo
+    if (auth!['role'] != 'ADMIN' && auth['role'] != 'SUPER_ADMIN') {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const WebDocumentsList()),
+        );
+      }
+      return;
+    }
     if (mounted) {
       _load();
     }

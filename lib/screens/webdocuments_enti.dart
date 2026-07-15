@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
+import 'package:webdocuments/services/auth_storage.dart';
+import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_desktop.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_mobile.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_desktop_button.dart';
@@ -15,6 +18,7 @@ class WebDocumentsEnti extends StatefulWidget {
 
 class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   final _svc = WebDocumentsService();
+  final _auth = AuthStorage();
   final _searchCtl = TextEditingController();
   final _scrollCtl = ScrollController();
   List<dynamic> _enti = [], _filtered = [];
@@ -24,6 +28,25 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   @override
   void initState() {
     super.initState();
+    _checkAccess();
+  }
+
+  Future<void> _checkAccess() async {
+    final auth = await _auth.loadAuthData();
+    if (auth == null && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
+      );
+      return;
+    }
+    if (auth!['role'] != 'ADMIN' && auth['role'] != 'SUPER_ADMIN') {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const WebDocumentsList()),
+        );
+      }
+      return;
+    }
     _load();
     _scrollCtl.addListener(() {
       final o = _scrollCtl.offset;

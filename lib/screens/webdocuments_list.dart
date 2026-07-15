@@ -110,7 +110,14 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     final p = a['token']!.split('.');
     if (p.length != 3) return;
     final d = jsonDecode(utf8.decode(base64.decode(base64.normalize(p[1]))));
-    if (mounted) setState(() => _isAdmin = d['role'] == 'ADMIN');
+    if (mounted) {
+      setState(
+        () => _isAdmin = d['role'] == 'ADMIN' || d['role'] == 'SUPER_ADMIN',
+      );
+    }
+    if (!_showAppBar) {
+      setState(() => _showAppBar = true);
+    }
   }
 
   void _onSearch(String q) {
@@ -156,6 +163,12 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                           ),
                         ),
                         onDate: _toggleOrder,
+                        onDashboard: () =>
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => const WebDocumentsDashboard(),
+                              ),
+                            ),
                         service: _svc,
                       )
                     : ListAppBarDesktop(
