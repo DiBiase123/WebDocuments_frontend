@@ -134,6 +134,10 @@ class _WebDocumentsUsersState extends State<WebDocumentsUsers> {
                                     value: 'ADMIN',
                                     child: Text('ADMIN'),
                                   ),
+                                  DropdownMenuItem(
+                                    value: 'SUPER_ADMIN',
+                                    child: Text('SUPER_ADMIN'),
+                                  ),
                                 ],
                                 onChanged: (v) {
                                   if (v != null) {
