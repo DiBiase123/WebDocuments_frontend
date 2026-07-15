@@ -103233,7 +103233,7 @@ var $async$qu=A.M(function(a,b){if(a===1){o.push(b)
 s=p}for(;;)switch(s){case 0:p=4
 l=t.z
 i=n.a
-h="/api/roles/me"
+h="/api/users/me"
 g=A
 s=8
 return A.E(n.hR(),$async$qu)
@@ -103277,7 +103277,7 @@ uu(){var s=0,r=A.L(t.j),q,p=2,o=[],n=this,m,l,k,j,i,h,g
 var $async$uu=A.M(function(a,b){if(a===1){o.push(b)
 s=p}for(;;)switch(s){case 0:p=4
 i=n.a
-h="/api/roles/users"
+h="/api/users/"
 g=A
 s=8
 return A.E(n.hR(),$async$uu)
@@ -103312,7 +103312,7 @@ var $async$uf=A.M(function(d,e){if(d===1)return A.I(e,r)
 for(;;)switch(s){case 0:p=J
 o=J
 n=q.a
-m="/api/roles/update"
+m="/api/users/update"
 l=A.aG(["id",a,"role",b,"adminId",c],t.N,t.T)
 k=A
 s=3
