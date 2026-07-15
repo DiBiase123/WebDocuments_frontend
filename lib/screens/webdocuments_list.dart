@@ -157,18 +157,6 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
                     ? ListAppBarMobile(
                         searchController: _searchCtl,
                         onSearch: _onSearch,
-                        onEnte: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => PdfByEnte(docs: _docs),
-                          ),
-                        ),
-                        onDate: _toggleOrder,
-                        onDashboard: () =>
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => const WebDocumentsDashboard(),
-                              ),
-                            ),
                         service: _svc,
                       )
                     : ListAppBarDesktop(

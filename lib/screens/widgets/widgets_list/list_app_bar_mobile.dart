@@ -5,18 +5,12 @@ import 'package:webdocuments/services/webdocuments_service.dart';
 class ListAppBarMobile extends StatelessWidget implements PreferredSizeWidget {
   final TextEditingController searchController;
   final ValueChanged<String> onSearch;
-  final VoidCallback onEnte;
-  final VoidCallback onDate;
-  final VoidCallback onDashboard;
   final WebDocumentsService service;
 
   const ListAppBarMobile({
     super.key,
     required this.searchController,
     required this.onSearch,
-    required this.onEnte,
-    required this.onDate,
-    required this.onDashboard,
     required this.service,
   });
 
@@ -44,21 +38,6 @@ class ListAppBarMobile extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.business, color: Color(0xFFF08A5D)),
-          onPressed: onEnte,
-          tooltip: 'Enti',
-        ),
-        IconButton(
-          icon: const Icon(Icons.calendar_month, color: Color(0xFF4ECDC4)),
-          onPressed: onDate,
-          tooltip: 'Date',
-        ),
-        IconButton(
-          icon: const Icon(Icons.dashboard),
-          onPressed: onDashboard,
-          tooltip: 'Dashboard',
-        ),
         Padding(
           padding: const EdgeInsets.only(right: 12),
           child: LogoutButton(service: service),

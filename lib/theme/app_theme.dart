@@ -28,7 +28,7 @@ class AppTheme {
         bodyMedium: TextStyle(fontSize: 22, color: Color(0xFFDDDDDD)),
         bodySmall: TextStyle(fontSize: 20, color: Color(0xFFBBBBBB)),
         titleLarge: TextStyle(
-          fontSize: 32,
+          fontSize: 36,
           fontWeight: FontWeight.bold,
           color: Color(0xFFEEEEEE),
         ),

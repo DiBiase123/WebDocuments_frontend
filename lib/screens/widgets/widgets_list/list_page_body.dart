@@ -35,19 +35,28 @@ class ListPageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (!isMobile)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: showAppBar ? 80 : 0,
-            color: Colors.transparent,
-            child: ClipRect(
-              child: ListDesktopButtons(
-                docs: docs,
-                ascending: ascending,
-                onToggleOrder: onToggleOrder,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Lista dei documenti :',
+                  style: Theme.of(context).textTheme.titleLarge,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
+              if (!isMobile) ...[
+                const SizedBox(width: 16),
+                ListDesktopButtons(
+                  docs: docs,
+                  ascending: ascending,
+                  onToggleOrder: onToggleOrder,
+                ),
+              ],
+            ],
           ),
+        ),
         Expanded(
           child: loading
               ? const Center(child: CircularProgressIndicator())
