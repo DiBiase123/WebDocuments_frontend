@@ -176,7 +176,7 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const SizedBox.shrink();
     }
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(

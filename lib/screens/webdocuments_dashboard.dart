@@ -202,7 +202,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
 
   Widget _buildCard(Map<String, dynamic> d) {
     if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const SizedBox.shrink();
     }
     final t = Theme.of(context);
     final enti =
