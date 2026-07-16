@@ -5,7 +5,6 @@ import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_desktop.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_mobile.dart';
-import 'package:webdocuments/screens/widgets/widgets_enti/enti_desktop_button.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_list.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_footer.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_dialog.dart';
@@ -176,6 +175,9 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: PreferredSize(

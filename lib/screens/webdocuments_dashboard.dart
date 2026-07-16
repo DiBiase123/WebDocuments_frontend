@@ -201,6 +201,9 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   }
 
   Widget _buildCard(Map<String, dynamic> d) {
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final t = Theme.of(context);
     final enti =
         (d['enti'] as List?)
