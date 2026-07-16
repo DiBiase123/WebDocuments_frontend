@@ -39,7 +39,6 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       );
       return;
     }
-    // Controlla ruolo
     if (auth!['role'] != 'ADMIN' && auth['role'] != 'SUPER_ADMIN') {
       if (mounted) {
         Navigator.of(context).pushReplacement(
@@ -275,6 +274,9 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final t = Theme.of(context);
     return Scaffold(
       appBar: DashboardAppBar(
@@ -326,9 +328,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
             ),
           ),
           Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
+            child: _error != null
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -157,6 +157,9 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: PreferredSize(
@@ -186,7 +189,7 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
           Expanded(
             child: EntiList(
               enti: _filtered,
-              loading: _loading,
+              loading: false,
               onEdit: _edit,
               onDelete: _delete,
               scrollController: _scrollCtl,
