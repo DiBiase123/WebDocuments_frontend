@@ -185,7 +185,21 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
       ),
       body: Column(
         children: [
-          if (!isMobile) EntiDesktopButton(onAdd: _add),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
+            child: Row(
+              children: [
+                Text(
+                  'Gestione Enti :',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                if (!isMobile) ...[
+                  const Spacer(),
+                  EntiDesktopButton(onAdd: _add),
+                ],
+              ],
+            ),
+          ),
           Expanded(
             child: EntiList(
               enti: _filtered,
