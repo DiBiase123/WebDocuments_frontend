@@ -274,9 +274,6 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
     final t = Theme.of(context);
     return Scaffold(
       appBar: DashboardAppBar(
@@ -328,7 +325,9 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
             ),
           ),
           Expanded(
-            child: _error != null
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

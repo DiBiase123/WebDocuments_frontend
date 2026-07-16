@@ -81,6 +81,19 @@ class AppTheme {
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: const Color(0xFF1B1B2F),
+        titleTextStyle: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFEEEEEE),
+        ),
+        contentTextStyle: const TextStyle(
+          fontSize: 18,
+          color: Color(0xFFDDDDDD),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
       datePickerTheme: DatePickerThemeData(
         backgroundColor: const Color(0xFF1F4068),
         headerBackgroundColor: const Color(0xFF1B1B2F),
@@ -115,7 +128,10 @@ class AppTheme {
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: const Color(0xFFF08A5D)),
+        style: TextButton.styleFrom(
+          foregroundColor: const Color(0xFFF08A5D),
+          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

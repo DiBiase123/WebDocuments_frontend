@@ -21,25 +21,43 @@ class ListAppBarDesktop extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: TextField(
-        controller: searchController,
-        onChanged: onSearch,
-        style: const TextStyle(color: Colors.white, fontSize: 16),
-        decoration: InputDecoration(
-          hintText: 'Cerca...',
-          hintStyle: const TextStyle(color: Colors.white38, fontSize: 16),
-          prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 24),
-          filled: true,
-          fillColor: Colors.white.withAlpha(20),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+      title: Row(
+        children: [
+          const Text('WebDocuments'),
+          const SizedBox(width: 16),
+          Expanded(
+            child: SizedBox(
+              height: 40,
+              child: TextField(
+                controller: searchController,
+                onChanged: onSearch,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                decoration: InputDecoration(
+                  hintText: 'Cerca...',
+                  hintStyle: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 16,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: Colors.white54,
+                    size: 24,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white.withAlpha(20),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                ),
+              ),
+            ),
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 8,
-          ),
-        ),
+        ],
       ),
       actions: [
         if (isAdmin)

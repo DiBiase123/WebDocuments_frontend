@@ -144,36 +144,33 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(_showAppBar ? 70 : 0),
-        child: AnimatedContainer(
+        child: AnimatedOpacity(
           duration: const Duration(milliseconds: 200),
-          height: _showAppBar ? 70 : 0,
-          child: _showAppBar
-              ? isMobile
-                    ? ListAppBarMobile(
-                        searchController: _searchCtl,
-                        onSearch: _onSearch,
-                        service: _svc,
-                      )
-                    : ListAppBarDesktop(
-                        searchController: _searchCtl,
-                        onSearch: _onSearch,
-                        isAdmin: _isAdmin,
-                        onDashboard: () =>
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => const WebDocumentsDashboard(),
-                              ),
-                            ),
-                        service: _svc,
-                      )
-              : const SizedBox.shrink(),
+          opacity: _showAppBar ? 1.0 : 0.0,
+          child: SizedBox(
+            height: 70,
+            child: isMobile
+                ? ListAppBarMobile(
+                    searchController: _searchCtl,
+                    onSearch: _onSearch,
+                    service: _svc,
+                  )
+                : ListAppBarDesktop(
+                    searchController: _searchCtl,
+                    onSearch: _onSearch,
+                    isAdmin: _isAdmin,
+                    onDashboard: () => Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) => const WebDocumentsDashboard(),
+                      ),
+                    ),
+                    service: _svc,
+                  ),
+          ),
         ),
       ),
       body: ListPageBody(

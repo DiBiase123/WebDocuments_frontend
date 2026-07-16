@@ -136,6 +136,25 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   }
 
   Future<void> _delete(String id) async {
+    final conferma = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Elimina ente'),
+        content: const Text('Sei sicuro di voler eliminare questo ente?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annulla'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Elimina'),
+          ),
+        ],
+      ),
+    );
+    if (conferma != true) return;
     try {
       await _svc.deleteEnte(id);
       _load();
@@ -157,9 +176,6 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: PreferredSize(
@@ -185,25 +201,43 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
+          Container(
+            margin: const EdgeInsets.fromLTRB(32, 16, 32, 8),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Gestione Enti :',
-                  style: Theme.of(context).textTheme.titleLarge,
+                Flexible(
+                  child: Text(
+                    'Gestione Enti :',
+                    style: Theme.of(context).textTheme.titleLarge,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                if (!isMobile) ...[
-                  const Spacer(),
-                  EntiDesktopButton(onAdd: _add),
-                ],
+                if (!isMobile)
+                  ElevatedButton.icon(
+                    onPressed: _add,
+                    icon: const Icon(Icons.add, size: 32),
+                    label: const Text(
+                      'Crea ente',
+                      style: TextStyle(fontSize: 22),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
+                      foregroundColor: const Color(0xFFF08A5D),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 18,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
           Expanded(
             child: EntiList(
               enti: _filtered,
-              loading: false,
+              loading: _loading,
               onEdit: _edit,
               onDelete: _delete,
               scrollController: _scrollCtl,
