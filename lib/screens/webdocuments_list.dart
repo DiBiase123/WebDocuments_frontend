@@ -144,9 +144,6 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const SizedBox.shrink();
-    }
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: PreferredSize(
