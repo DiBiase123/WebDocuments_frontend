@@ -1,9 +1,11 @@
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/document_form_dialog.dart';
+import 'package:webdocuments/screens/widgets/widgets_extract/extract_controller.dart';
 
 class DashboardController extends ChangeNotifier {
   final _svc = WebDocumentsService();
@@ -39,7 +41,7 @@ class DashboardController extends ChangeNotifier {
     } else if (doc?['enteId'] != null) {
       enteIds = [doc!['enteId'] as String];
     }
-    final ctx = navigatorKey.currentContext;
+    final ctx = ExtractController.navigatorKey.currentContext;
     if (ctx == null) return Future.value(null);
     return showDialog<Map<String, dynamic>>(
       context: ctx,
@@ -52,11 +54,11 @@ class DashboardController extends ChangeNotifier {
   }
 
   Future<void> upload() async {
-    final f = await form();
-    if (f == null) return;
-    final file = f['file'] as PlatformFile?;
-    if (file == null || file.bytes == null) return;
     try {
+      final f = await form();
+      if (f == null) return;
+      final file = f['file'] as PlatformFile?;
+      if (file == null || file.bytes == null) return;
       await _svc.createDocument(
         description: f['description']!,
         documentDate: f['documentDate']!,
@@ -67,6 +69,7 @@ class DashboardController extends ChangeNotifier {
       snack('Caricato');
       await load();
     } catch (e) {
+      dev.log('ERRORE UPLOAD: $e', name: 'DashboardController');
       snack(e.toString().replaceFirst('Exception: ', ''));
     }
   }
@@ -89,7 +92,7 @@ class DashboardController extends ChangeNotifier {
   }
 
   Future<void> delete(Map<String, dynamic> d) async {
-    final ctx = navigatorKey.currentContext;
+    final ctx = ExtractController.navigatorKey.currentContext;
     if (ctx == null) return;
     final ok = await showDialog<bool>(
       context: ctx,
@@ -120,12 +123,9 @@ class DashboardController extends ChangeNotifier {
   }
 
   void snack(String msg) {
-    final ctx = navigatorKey.currentContext;
+    final ctx = ExtractController.navigatorKey.currentContext;
     if (ctx != null) {
       ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
-
-  static final GlobalKey<NavigatorState> navigatorKey =
-      GlobalKey<NavigatorState>();
 }

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
@@ -6,12 +7,18 @@ import 'package:webdocuments/screens/widgets/document_form_body.dart';
 class DocumentFormDialog extends StatefulWidget {
   final String? initialDescription, initialDate;
   final List<String>? initialEnteIds;
+  final List<int>? initialFileBytes;
+  final String? initialFileName;
+
   const DocumentFormDialog({
     super.key,
     this.initialDescription,
     this.initialDate,
     this.initialEnteIds,
+    this.initialFileBytes,
+    this.initialFileName,
   });
+
   @override
   State<DocumentFormDialog> createState() => _DocumentFormDialogState();
 }
@@ -37,6 +44,13 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
   void initState() {
     super.initState();
     _enteIds = widget.initialEnteIds ?? [];
+    if (widget.initialFileBytes != null && widget.initialFileName != null) {
+      _file = PlatformFile(
+        name: widget.initialFileName!,
+        size: widget.initialFileBytes!.length,
+        bytes: Uint8List.fromList(widget.initialFileBytes!),
+      );
+    }
     _loadEnti();
   }
 
@@ -161,12 +175,6 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
       ).showSnackBar(const SnackBar(content: Text('Seleziona un file PDF')));
       return;
     }
-    if (_enteIds.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Seleziona almeno un ente')));
-      return;
-    }
     if (_key.currentState!.validate()) {
       Navigator.pop(context, {
         'description': _desc.text.trim(),
@@ -220,9 +228,8 @@ class _DocumentFormDialogState extends State<DocumentFormDialog> {
             onPickDate: _pickDate,
             onDateChanged: _onDateChanged,
             onAddEnte: _addEnte,
-            onEnteToggle: (id, sel) {
-              setState(() => sel ? _enteIds.add(id) : _enteIds.remove(id));
-            },
+            onEnteToggle: (id, sel) =>
+                setState(() => sel ? _enteIds.add(id) : _enteIds.remove(id)),
           ),
         ),
       ),
