@@ -2,65 +2,50 @@ import 'package:flutter/material.dart';
 
 Future<String?> showEnteDialog(
   BuildContext context, {
-  String? initialValue,
+  String initialValue = '',
   bool isEdit = false,
-}) async {
+}) {
+  final controller = TextEditingController(text: initialValue);
   return showDialog<String>(
     context: context,
-    builder: (ctx) {
-      final ctrl = TextEditingController(text: initialValue ?? '');
-      return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
+    builder: (ctx) => AlertDialog(
+      titlePadding: EdgeInsets.zero,
+      title: Container(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1B1B2F),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(12),
+            topRight: Radius.circular(12),
+          ),
+        ),
+        child: Text(
           isEdit ? 'Modifica ente' : 'Nuovo ente',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: 400,
-          child: TextField(
-            controller: ctrl,
-            autofocus: true,
-            style: const TextStyle(fontSize: 20),
-            decoration: InputDecoration(
-              labelText: 'Nome ente',
-              labelStyle: const TextStyle(fontSize: 20),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: Theme.of(ctx).colorScheme.surface.withAlpha(100),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-            ),
-            onSubmitted: (v) {
-              if (v.trim().isNotEmpty) Navigator.pop(ctx, v.trim());
-            },
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFEEEEEE),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annulla', style: TextStyle(fontSize: 20)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {
-              Navigator.pop(ctx, ctrl.text.trim());
-            },
-            child: Text(
-              isEdit ? 'Salva' : 'Crea',
-              style: const TextStyle(fontSize: 20),
-            ),
-          ),
-        ],
-      );
-    },
+      ),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        decoration: const InputDecoration(
+          labelText: 'Nome ente',
+          hintText: 'Inserisci il nome',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Annulla'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(ctx, controller.text),
+          child: Text(isEdit ? 'Modifica' : 'Crea'),
+        ),
+      ],
+    ),
   );
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
+import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/webdocuments_users.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
@@ -9,6 +10,7 @@ import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/document_form_dialog.dart';
 import 'package:webdocuments/screens/widgets/dashboard_app_bar.dart';
+import 'package:webdocuments/screens/widgets/dashboard_footer.dart';
 import 'package:webdocuments/screens/widgets/ente_badge.dart';
 
 class WebDocumentsDashboard extends StatefulWidget {
@@ -160,24 +162,18 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         content: Text('Eliminare "${d['description']}"?'),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(ctx, false);
-            },
+            onPressed: () => Navigator.pop(ctx, false),
             child: const Text('Annulla'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(ctx, true);
-            },
+            onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Elimina'),
           ),
         ],
       ),
     );
-    if (ok != true) {
-      return;
-    }
+    if (ok != true) return;
     try {
       await _svc.deleteDocument(d['id']);
       if (mounted) {
@@ -201,9 +197,6 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   }
 
   Widget _buildCard(Map<String, dynamic> d) {
-    if (_loading) {
-      return const SizedBox.shrink();
-    }
     final t = Theme.of(context);
     final enti =
         (d['enti'] as List?)
@@ -238,35 +231,28 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
             ),
           ],
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+        trailing: Wrap(
+          spacing: 4,
+          runSpacing: 4,
           children: [
             IconButton(
               icon: const Icon(Icons.visibility, color: Colors.cyanAccent),
-              onPressed: () {
-                _pdf.open(d);
-              },
+              onPressed: () => _pdf.open(d),
               tooltip: 'Anteprima',
             ),
             IconButton(
               icon: const Icon(Icons.download, color: Colors.greenAccent),
-              onPressed: () {
-                _pdf.download(d);
-              },
+              onPressed: () => _pdf.download(d),
               tooltip: 'Download',
             ),
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.orange),
-              onPressed: () {
-                _edit(d);
-              },
+              onPressed: () => _edit(d),
               tooltip: 'Modifica',
             ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.redAccent),
-              onPressed: () {
-                _delete(d);
-              },
+              onPressed: () => _delete(d),
               tooltip: 'Elimina',
             ),
           ],
@@ -278,52 +264,86 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
-      appBar: DashboardAppBar(
-        onUpload: _upload,
-        service: _svc,
-        searchController: TextEditingController(),
-        onSearch: (v) {},
+      appBar: AnimatedAppBar(
+        visible: true,
+        child: DashboardAppBar(
+          onUpload: _upload,
+          service: _svc,
+          searchController: TextEditingController(),
+          onSearch: (v) {},
+          isMobile: isMobile,
+        ),
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const WebDocumentsEnti(),
+                Flexible(
+                  child: Text(
+                    'Dashboard :',
+                    style: Theme.of(context).textTheme.titleLarge,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (!isMobile)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const WebDocumentsEnti(),
+                            ),
+                          );
+                          if (mounted) _load();
+                        },
+                        icon: const Icon(Icons.business, size: 32),
+                        label: const Text(
+                          'Enti',
+                          style: TextStyle(fontSize: 22),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFFF08A5D,
+                          ).withAlpha(30),
+                          foregroundColor: const Color(0xFFF08A5D),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 18,
+                          ),
+                        ),
                       ),
-                    );
-                    if (mounted) {
-                      _load();
-                    }
-                  },
-                  icon: const Icon(Icons.business, size: 22),
-                  label: const Text('Enti'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
-                    foregroundColor: const Color(0xFFF08A5D),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const WebDocumentsUsers(),
+                          ),
+                        ),
+                        icon: const Icon(Icons.people, size: 32),
+                        label: const Text(
+                          'Utenti',
+                          style: TextStyle(fontSize: 22),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF4ECDC4,
+                          ).withAlpha(30),
+                          foregroundColor: const Color(0xFF4ECDC4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 18,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const WebDocumentsUsers(),
-                    ),
-                  ),
-                  icon: const Icon(Icons.people, size: 22),
-                  label: const Text('Utenti'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
-                    foregroundColor: const Color(0xFF4ECDC4),
-                  ),
-                ),
               ],
             ),
           ),
@@ -376,6 +396,23 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
           ),
         ],
       ),
+      bottomNavigationBar: isMobile
+          ? DashboardFooter(
+              onList: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const WebDocumentsList()),
+              ),
+              onUpload: _upload,
+              onEnti: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const WebDocumentsEnti()),
+                );
+                if (mounted) _load();
+              },
+              onUtenti: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const WebDocumentsUsers()),
+              ),
+            )
+          : null,
     );
   }
 }

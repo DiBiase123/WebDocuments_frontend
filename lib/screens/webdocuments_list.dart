@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/list_footer.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_page_body.dart';
@@ -146,32 +147,25 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(_showAppBar ? 70 : 0),
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: _showAppBar ? 1.0 : 0.0,
-          child: SizedBox(
-            height: 70,
-            child: isMobile
-                ? ListAppBarMobile(
-                    searchController: _searchCtl,
-                    onSearch: _onSearch,
-                    service: _svc,
-                  )
-                : ListAppBarDesktop(
-                    searchController: _searchCtl,
-                    onSearch: _onSearch,
-                    isAdmin: _isAdmin,
-                    onDashboard: () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (_) => const WebDocumentsDashboard(),
-                      ),
-                    ),
-                    service: _svc,
+      appBar: AnimatedAppBar(
+        visible: _showAppBar,
+        child: isMobile
+            ? ListAppBarMobile(
+                searchController: _searchCtl,
+                onSearch: _onSearch,
+                service: _svc,
+              )
+            : ListAppBarDesktop(
+                searchController: _searchCtl,
+                onSearch: _onSearch,
+                isAdmin: _isAdmin,
+                onDashboard: () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (_) => const WebDocumentsDashboard(),
                   ),
-          ),
-        ),
+                ),
+                service: _svc,
+              ),
       ),
       body: ListPageBody(
         loading: _loading,

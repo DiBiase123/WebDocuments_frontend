@@ -8,6 +8,7 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   final WebDocumentsService service;
   final TextEditingController searchController;
   final ValueChanged<String> onSearch;
+  final bool isMobile;
 
   const DashboardAppBar({
     super.key,
@@ -15,6 +16,7 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.service,
     required this.searchController,
     required this.onSearch,
+    this.isMobile = false,
   });
 
   @override
@@ -22,8 +24,10 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Row(
         children: [
-          const Text('WebDocuments'),
-          const SizedBox(width: 16),
+          if (!isMobile) ...[
+            const Text('WebDocuments'),
+            const SizedBox(width: 16),
+          ],
           Expanded(
             child: SizedBox(
               height: 40,
@@ -59,20 +63,22 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: onUpload,
-          tooltip: 'Carica',
-        ),
-        IconButton(
-          icon: const Icon(Icons.list),
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const WebDocumentsList()),
-            );
-          },
-          tooltip: 'Lista',
-        ),
+        if (!isMobile) ...[
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: onUpload,
+            tooltip: 'Carica',
+          ),
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const WebDocumentsList()),
+              );
+            },
+            tooltip: 'Lista',
+          ),
+        ],
         Padding(
           padding: const EdgeInsets.only(right: 12),
           child: LogoutButton(service: service),

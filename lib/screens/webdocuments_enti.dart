@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/services/auth_storage.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_desktop.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_mobile.dart';
@@ -177,26 +178,20 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(_showAppBar ? 70 : 0),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: _showAppBar ? 70 : 0,
-          child: _showAppBar
-              ? isMobile
-                    ? EntiAppBarMobile(
-                        searchController: _searchCtl,
-                        onSearch: _onSearch,
-                        service: _svc,
-                      )
-                    : EntiAppBarDesktop(
-                        searchController: _searchCtl,
-                        onSearch: _onSearch,
-                        onBack: () => Navigator.pop(context),
-                        service: _svc,
-                      )
-              : const SizedBox.shrink(),
-        ),
+      appBar: AnimatedAppBar(
+        visible: _showAppBar,
+        child: isMobile
+            ? EntiAppBarMobile(
+                searchController: _searchCtl,
+                onSearch: _onSearch,
+                service: _svc,
+              )
+            : EntiAppBarDesktop(
+                searchController: _searchCtl,
+                onSearch: _onSearch,
+                onBack: () => Navigator.pop(context),
+                service: _svc,
+              ),
       ),
       body: Column(
         children: [
