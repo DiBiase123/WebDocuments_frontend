@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/auth_storage.dart';
+import 'package:webdocuments/services/auth_guard.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
 import 'package:webdocuments/screens/widgets/pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/list_footer.dart';
@@ -20,8 +20,8 @@ class WebDocumentsList extends StatefulWidget {
 
 class _WebDocumentsListState extends State<WebDocumentsList> {
   final _svc = WebDocumentsService();
-  final _pdf = PdfHelper(AuthStorage());
   final _auth = AuthStorage();
+  late final _pdf = PdfHelper(_auth);
   final _searchCtl = TextEditingController();
   final _scrollCtl = ScrollController();
   List<dynamic> _docs = [], _filtered = [];
@@ -40,30 +40,20 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
       onPreview: (d) => _pdf.open(d),
       onDownload: (d) => _pdf.download(d),
     );
-    _checkAuth();
+    _load();
+    _checkAdmin();
     _scrollCtl.addListener(() {
       final o = _scrollCtl.offset;
       if (o <= 0) {
-        if (!_showAppBar) setState(() => _showAppBar = true);
+        if (!_showAppBar) {
+          setState(() => _showAppBar = true);
+        }
       } else if ((o > _lastOffset && o > 70 && _showAppBar) ||
           (o < _lastOffset && !_showAppBar)) {
         setState(() => _showAppBar = !_showAppBar);
       }
       _lastOffset = o;
     });
-  }
-
-  Future<void> _checkAuth() async {
-    if (await _auth.loadAuthData() == null) {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
-        );
-      }
-      return;
-    }
-    _load();
-    _checkAdmin();
   }
 
   Future<void> _load() async {
@@ -96,6 +86,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         ? (a['documentDate'] ?? '').compareTo(b['documentDate'] ?? '')
         : (b['documentDate'] ?? '').compareTo(a['documentDate'] ?? ''),
   );
+
   void _toggleOrder() {
     setState(() {
       _ascending = !_ascending;
@@ -106,9 +97,13 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
 
   Future<void> _checkAdmin() async {
     final a = await _auth.loadAuthData();
-    if (a == null) return;
+    if (a == null) {
+      return;
+    }
     final p = a['token']!.split('.');
-    if (p.length != 3) return;
+    if (p.length != 3) {
+      return;
+    }
     final d = jsonDecode(utf8.decode(base64.decode(base64.normalize(p[1]))));
     if (mounted) {
       setState(
@@ -146,48 +141,50 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    return Scaffold(
-      appBar: AnimatedAppBar(
-        visible: _showAppBar,
-        child: isMobile
-            ? ListAppBarMobile(
-                searchController: _searchCtl,
-                onSearch: _onSearch,
-                service: _svc,
-              )
-            : ListAppBarDesktop(
-                searchController: _searchCtl,
-                onSearch: _onSearch,
-                isAdmin: _isAdmin,
-                onDashboard: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (_) => const WebDocumentsDashboard(),
+    return AuthGuard(
+      child: Scaffold(
+        appBar: AnimatedAppBar(
+          visible: _showAppBar,
+          child: isMobile
+              ? ListAppBarMobile(
+                  searchController: _searchCtl,
+                  onSearch: _onSearch,
+                  service: _svc,
+                )
+              : ListAppBarDesktop(
+                  searchController: _searchCtl,
+                  onSearch: _onSearch,
+                  isAdmin: _isAdmin,
+                  onDashboard: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => const WebDocumentsDashboard(),
+                    ),
                   ),
+                  service: _svc,
                 ),
-                service: _svc,
-              ),
+        ),
+        body: ListPageBody(
+          loading: _loading,
+          error: _error,
+          documents: _filtered,
+          isMobile: isMobile,
+          showAppBar: _showAppBar,
+          ascending: _ascending,
+          cardBuilder: _cardBuilder,
+          scrollController: _scrollCtl,
+          onRetry: _load,
+          onToggleOrder: _toggleOrder,
+          docs: _docs,
+        ),
+        bottomNavigationBar: isMobile
+            ? ListFooter(
+                docs: _docs,
+                isAdmin: _isAdmin,
+                ascending: _ascending,
+                onToggleOrder: _toggleOrder,
+              )
+            : null,
       ),
-      body: ListPageBody(
-        loading: _loading,
-        error: _error,
-        documents: _filtered,
-        isMobile: isMobile,
-        showAppBar: _showAppBar,
-        ascending: _ascending,
-        cardBuilder: _cardBuilder,
-        scrollController: _scrollCtl,
-        onRetry: _load,
-        onToggleOrder: _toggleOrder,
-        docs: _docs,
-      ),
-      bottomNavigationBar: isMobile
-          ? ListFooter(
-              docs: _docs,
-              isAdmin: _isAdmin,
-              ascending: _ascending,
-              onToggleOrder: _toggleOrder,
-            )
-          : null,
     );
   }
 }

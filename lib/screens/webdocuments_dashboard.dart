@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/auth_storage.dart';
+import 'package:webdocuments/services/auth_guard.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
-import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/webdocuments_users.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
@@ -22,7 +22,6 @@ class WebDocumentsDashboard extends StatefulWidget {
 class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   final _svc = WebDocumentsService();
   final _pdf = PdfHelper(AuthStorage());
-  final _auth = AuthStorage();
   List<dynamic> _docs = [];
   bool _loading = true;
   String? _error;
@@ -30,28 +29,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   @override
   void initState() {
     super.initState();
-    _checkAuth();
-  }
-
-  Future<void> _checkAuth() async {
-    final auth = await _auth.loadAuthData();
-    if (auth == null && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
-      );
-      return;
-    }
-    if (auth!['role'] != 'ADMIN' && auth['role'] != 'SUPER_ADMIN') {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const WebDocumentsList()),
-        );
-      }
-      return;
-    }
-    if (mounted) {
-      _load();
-    }
+    _load();
   }
 
   Future<void> _load() async {
@@ -105,13 +83,9 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
 
   Future<void> _upload() async {
     final form = await _form();
-    if (form == null) {
-      return;
-    }
+    if (form == null) return;
     final file = form['file'] as PlatformFile?;
-    if (file == null || file.bytes == null) {
-      return;
-    }
+    if (file == null || file.bytes == null) return;
     try {
       await _svc.createDocument(
         description: form['description']!,
@@ -133,9 +107,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
 
   Future<void> _edit(Map<String, dynamic> d) async {
     final form = await _form(d);
-    if (form == null) {
-      return;
-    }
+    if (form == null) return;
     try {
       await _svc.updateDocument(
         id: d['id'],
@@ -148,9 +120,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         _load();
       }
     } catch (_) {
-      if (mounted) {
-        _snack('Errore modifica');
-      }
+      if (mounted) _snack('Errore modifica');
     }
   }
 
@@ -181,9 +151,7 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         _load();
       }
     } catch (_) {
-      if (mounted) {
-        _snack('Errore');
-      }
+      if (mounted) _snack('Errore');
     }
   }
 
@@ -265,154 +233,160 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 600;
-    return Scaffold(
-      appBar: AnimatedAppBar(
-        visible: true,
-        child: DashboardAppBar(
-          onUpload: _upload,
-          service: _svc,
-          searchController: TextEditingController(),
-          onSearch: (v) {},
-          isMobile: isMobile,
+    return AuthGuard(
+      allowedRoles: ['ADMIN', 'SUPER_ADMIN'],
+      child: Scaffold(
+        appBar: AnimatedAppBar(
+          visible: true,
+          child: DashboardAppBar(
+            onUpload: _upload,
+            service: _svc,
+            searchController: TextEditingController(),
+            onSearch: (v) {},
+            isMobile: isMobile,
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text(
-                    'Dashboard :',
-                    style: Theme.of(context).textTheme.titleLarge,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (!isMobile)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const WebDocumentsEnti(),
-                            ),
-                          );
-                          if (mounted) _load();
-                        },
-                        icon: const Icon(Icons.business, size: 32),
-                        label: const Text(
-                          'Enti',
-                          style: TextStyle(fontSize: 22),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                            0xFFF08A5D,
-                          ).withAlpha(30),
-                          foregroundColor: const Color(0xFFF08A5D),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 28,
-                            vertical: 18,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      ElevatedButton.icon(
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const WebDocumentsUsers(),
-                          ),
-                        ),
-                        icon: const Icon(Icons.people, size: 32),
-                        label: const Text(
-                          'Utenti',
-                          style: TextStyle(fontSize: 22),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                            0xFF4ECDC4,
-                          ).withAlpha(30),
-                          foregroundColor: const Color(0xFF4ECDC4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 28,
-                            vertical: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _error!,
-                          style: const TextStyle(color: Colors.redAccent),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _load,
-                          child: const Text('Riprova'),
-                        ),
-                      ],
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      'Dashboard :',
+                      style: Theme.of(context).textTheme.titleLarge,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  )
-                : _docs.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  ),
+                  if (!isMobile)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.folder_open,
-                          size: 64,
-                          color: t.colorScheme.primary,
-                        ),
-                        const SizedBox(height: 16),
-                        Text('Nessun documento', style: t.textTheme.bodyMedium),
-                        const SizedBox(height: 24),
                         ElevatedButton.icon(
-                          onPressed: _upload,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Carica il primo documento'),
+                          onPressed: () async {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const WebDocumentsEnti(),
+                              ),
+                            );
+                            if (mounted) _load();
+                          },
+                          icon: const Icon(Icons.business, size: 32),
+                          label: const Text(
+                            'Enti',
+                            style: TextStyle(fontSize: 22),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                              0xFFF08A5D,
+                            ).withAlpha(30),
+                            foregroundColor: const Color(0xFFF08A5D),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 28,
+                              vertical: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const WebDocumentsUsers(),
+                            ),
+                          ),
+                          icon: const Icon(Icons.people, size: 32),
+                          label: const Text(
+                            'Utenti',
+                            style: TextStyle(fontSize: 22),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                              0xFF4ECDC4,
+                            ).withAlpha(30),
+                            foregroundColor: const Color(0xFF4ECDC4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 28,
+                              vertical: 18,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _docs.length,
-                    itemBuilder: (_, i) => _buildCard(_docs[i]),
-                  ),
-          ),
-        ],
+                ],
+              ),
+            ),
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _error!,
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _load,
+                            child: const Text('Riprova'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : _docs.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.folder_open,
+                            size: 64,
+                            color: t.colorScheme.primary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Nessun documento',
+                            style: t.textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: _upload,
+                            icon: const Icon(Icons.add),
+                            label: const Text('Carica il primo documento'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _docs.length,
+                      itemBuilder: (_, i) => _buildCard(_docs[i]),
+                    ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: isMobile
+            ? DashboardFooter(
+                onList: () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const WebDocumentsList()),
+                ),
+                onUpload: _upload,
+                onEnti: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const WebDocumentsEnti()),
+                  );
+                  if (mounted) _load();
+                },
+                onUtenti: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const WebDocumentsUsers()),
+                ),
+              )
+            : null,
       ),
-      bottomNavigationBar: isMobile
-          ? DashboardFooter(
-              onList: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const WebDocumentsList()),
-              ),
-              onUpload: _upload,
-              onEnti: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const WebDocumentsEnti()),
-                );
-                if (mounted) _load();
-              },
-              onUtenti: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const WebDocumentsUsers()),
-              ),
-            )
-          : null,
     );
   }
 }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/services/auth_storage.dart';
-import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/services/auth_guard.dart';
 import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
-import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_desktop.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_mobile.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_list.dart';
@@ -18,7 +16,6 @@ class WebDocumentsEnti extends StatefulWidget {
 
 class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   final _svc = WebDocumentsService();
-  final _auth = AuthStorage();
   final _searchCtl = TextEditingController();
   final _scrollCtl = ScrollController();
   List<dynamic> _enti = [], _filtered = [];
@@ -28,30 +25,13 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   @override
   void initState() {
     super.initState();
-    _checkAccess();
-  }
-
-  Future<void> _checkAccess() async {
-    final auth = await _auth.loadAuthData();
-    if (auth == null && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
-      );
-      return;
-    }
-    if (auth!['role'] != 'ADMIN' && auth['role'] != 'SUPER_ADMIN') {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const WebDocumentsList()),
-        );
-      }
-      return;
-    }
     _load();
     _scrollCtl.addListener(() {
       final o = _scrollCtl.offset;
       if (o <= 0) {
-        if (!_showAppBar) setState(() => _showAppBar = true);
+        if (!_showAppBar) {
+          setState(() => _showAppBar = true);
+        }
       } else if ((o > _lastOffset && o > 70 && _showAppBar) ||
           (o < _lastOffset && !_showAppBar)) {
         setState(() => _showAppBar = !_showAppBar);
@@ -61,9 +41,7 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   }
 
   Future<void> _load() async {
-    setState(() {
-      _loading = true;
-    });
+    setState(() => _loading = true);
     try {
       final enti = await _svc.getEnti();
       if (mounted) {
@@ -75,9 +53,7 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
       }
     } catch (_) {
       if (mounted) {
-        setState(() {
-          _loading = false;
-        });
+        setState(() => _loading = false);
       }
     }
   }
@@ -154,7 +130,9 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
         ],
       ),
     );
-    if (conferma != true) return;
+    if (conferma != true) {
+      return;
+    }
     try {
       await _svc.deleteEnte(id);
       _load();
@@ -177,71 +155,74 @@ class _WebDocumentsEntiState extends State<WebDocumentsEnti> {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    return Scaffold(
-      appBar: AnimatedAppBar(
-        visible: _showAppBar,
-        child: isMobile
-            ? EntiAppBarMobile(
-                searchController: _searchCtl,
-                onSearch: _onSearch,
-                service: _svc,
-              )
-            : EntiAppBarDesktop(
-                searchController: _searchCtl,
-                onSearch: _onSearch,
-                onBack: () => Navigator.pop(context),
-                service: _svc,
-              ),
-      ),
-      body: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.fromLTRB(32, 16, 32, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    'Gestione Enti :',
-                    style: Theme.of(context).textTheme.titleLarge,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+    return AuthGuard(
+      allowedRoles: ['ADMIN', 'SUPER_ADMIN'],
+      child: Scaffold(
+        appBar: AnimatedAppBar(
+          visible: _showAppBar,
+          child: isMobile
+              ? EntiAppBarMobile(
+                  searchController: _searchCtl,
+                  onSearch: _onSearch,
+                  service: _svc,
+                )
+              : EntiAppBarDesktop(
+                  searchController: _searchCtl,
+                  onSearch: _onSearch,
+                  onBack: () => Navigator.pop(context),
+                  service: _svc,
                 ),
-                if (!isMobile)
-                  ElevatedButton.icon(
-                    onPressed: _add,
-                    icon: const Icon(Icons.add, size: 32),
-                    label: const Text(
-                      'Crea ente',
-                      style: TextStyle(fontSize: 22),
+        ),
+        body: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.fromLTRB(32, 16, 32, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      'Gestione Enti :',
+                      style: Theme.of(context).textTheme.titleLarge,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
-                      foregroundColor: const Color(0xFFF08A5D),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 18,
+                  ),
+                  if (!isMobile)
+                    ElevatedButton.icon(
+                      onPressed: _add,
+                      icon: const Icon(Icons.add, size: 32),
+                      label: const Text(
+                        'Crea ente',
+                        style: TextStyle(fontSize: 22),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
+                        foregroundColor: const Color(0xFFF08A5D),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 28,
+                          vertical: 18,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: EntiList(
-              enti: _filtered,
-              loading: _loading,
-              onEdit: _edit,
-              onDelete: _delete,
-              scrollController: _scrollCtl,
+            Expanded(
+              child: EntiList(
+                enti: _filtered,
+                loading: _loading,
+                onEdit: _edit,
+                onDelete: _delete,
+                scrollController: _scrollCtl,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        bottomNavigationBar: isMobile
+            ? EntiFooter(onBack: () => Navigator.pop(context), onAdd: _add)
+            : null,
       ),
-      bottomNavigationBar: isMobile
-          ? EntiFooter(onBack: () => Navigator.pop(context), onAdd: _add)
-          : null,
     );
   }
 }

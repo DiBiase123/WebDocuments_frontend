@@ -3,7 +3,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:webdocuments/config.dart';
 import 'package:webdocuments/services/auth_storage.dart';
+import 'package:webdocuments/services/auth_guard.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
 
 class PdfByDate extends StatefulWidget {
   final List<dynamic> docs;
@@ -23,17 +25,7 @@ class _PdfByDateState extends State<PdfByDate> {
   @override
   void initState() {
     super.initState();
-    _checkAuth();
     _sort();
-  }
-
-  Future<void> _checkAuth() async {
-    final auth = await _auth.loadAuthData();
-    if (auth == null && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
-      );
-    }
   }
 
   void _sort() {
@@ -135,147 +127,292 @@ class _PdfByDateState extends State<PdfByDate> {
     } else {
       sortedKeys.sort();
     }
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_sortByEnte ? 'Documenti per ente' : 'Documenti per data'),
-      ),
-      body: Column(
-        children: [
-          // Sostituisci solo i bottoni con versione compatta
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Row(
-              children: [
-                const Spacer(),
-                ElevatedButton.icon(
-                  icon: Icon(
-                    _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                    size: 18,
-                  ),
-                  label: Text(
-                    _ascending ? 'Crescente' : 'Decrescente',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _ascending = !_ascending;
-                      _sort();
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4ECDC4).withAlpha(30),
-                    foregroundColor: const Color(0xFF4ECDC4),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  icon: Icon(
-                    _sortByEnte ? Icons.calendar_month : Icons.business,
-                    size: 18,
-                  ),
-                  label: Text(
-                    _sortByEnte ? 'Date' : 'Enti',
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _sortByEnte = !_sortByEnte;
-                      _sort();
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF08A5D).withAlpha(30),
-                    foregroundColor: const Color(0xFFF08A5D),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                  ),
-                ),
-              ],
+    return AuthGuard(
+      child: Scaffold(
+        appBar: AnimatedAppBar(
+          visible: true,
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            title: Text(
+              _sortByEnte ? 'Documenti per ente' : 'Documenti per data',
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+                tooltip: 'Indietro',
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: IconButton(
+                  icon: const Icon(Icons.power_settings_new),
+                  onPressed: () async {
+                    await _auth.clearAuthData();
+                    if (!context.mounted) return;
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) => const WebDocumentsLogin(),
+                      ),
+                    );
+                  },
+                  tooltip: 'Logout',
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: sortedKeys.length,
-              itemBuilder: (_, i) {
-                final key = sortedKeys[i];
-                final docs = _grouped[key]!;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withAlpha(30),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        _sortByEnte ? key : _monthName(key),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Documenti per ${_sortByEnte ? 'ente' : 'data'} :',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  if (!isMobile)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton.icon(
+                          icon: Icon(
+                            _ascending
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            size: 32,
+                          ),
+                          label: Text(
+                            _ascending ? 'Crescente' : 'Decrescente',
+                            style: const TextStyle(fontSize: 22),
+                          ),
+                          onPressed: () => setState(() {
+                            _ascending = !_ascending;
+                            _sort();
+                          }),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                              0xFF4ECDC4,
+                            ).withAlpha(30),
+                            foregroundColor: const Color(0xFF4ECDC4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 28,
+                              vertical: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          icon: Icon(
+                            _sortByEnte ? Icons.calendar_month : Icons.business,
+                            size: 32,
+                          ),
+                          label: Text(
+                            _sortByEnte ? 'Date' : 'Enti',
+                            style: const TextStyle(fontSize: 22),
+                          ),
+                          onPressed: () => setState(() {
+                            _sortByEnte = !_sortByEnte;
+                            _sort();
+                          }),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                              0xFFF08A5D,
+                            ).withAlpha(30),
+                            foregroundColor: const Color(0xFFF08A5D),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 28,
+                              vertical: 18,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    ...docs.map(
-                      (d) => Card(
-                        margin: const EdgeInsets.only(bottom: 6, left: 16),
-                        child: ListTile(
-                          title: Text(
-                            d['fileName'] ?? '',
-                            style: const TextStyle(color: Color(0xFFFFC107)),
-                          ),
-                          subtitle: Text(
-                            d['description'] ?? '',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.visibility,
-                                  color: Colors.cyanAccent,
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: sortedKeys.length,
+                itemBuilder: (_, i) {
+                  final key = sortedKeys[i];
+                  final docs = _grouped[key]!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withAlpha(30),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _sortByEnte ? key : _monthName(key),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...docs.map(
+                        (d) => Card(
+                          margin: const EdgeInsets.only(bottom: 6, left: 16),
+                          child: ListTile(
+                            title: Text(
+                              d['fileName'] ?? '',
+                              style: const TextStyle(color: Color(0xFFFFC107)),
+                            ),
+                            subtitle: Text(
+                              d['description'] ?? '',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.visibility,
+                                    color: Colors.cyanAccent,
+                                  ),
+                                  onPressed: () => _openPdf(d),
+                                  tooltip: 'Anteprima',
                                 ),
-                                onPressed: () {
-                                  _openPdf(d);
-                                },
-                                tooltip: 'Anteprima',
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.download,
-                                  color: Colors.greenAccent,
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.download,
+                                    color: Colors.greenAccent,
+                                  ),
+                                  onPressed: () => _downloadPdf(d),
+                                  tooltip: 'Download',
                                 ),
-                                onPressed: () {
-                                  _downloadPdf(d);
-                                },
-                                tooltip: 'Download',
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: isMobile
+            ? Container(
+                height: 50,
+                color: Theme.of(context).primaryColor,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Ink(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Colors.white12),
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () => Navigator.pop(context),
+                            child: const Center(
+                              child: Icon(
+                                Icons.arrow_back,
+                                color: Color(0xFFF08A5D),
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Ink(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Colors.white12),
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () => setState(() {
+                              _ascending = !_ascending;
+                              _sort();
+                            }),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    _ascending
+                                        ? Icons.arrow_upward
+                                        : Icons.arrow_downward,
+                                    size: 22,
+                                    color: const Color(0xFF4ECDC4),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _ascending ? 'Crescente' : 'Decrescente',
+                                    style: const TextStyle(
+                                      color: Color(0xFF4ECDC4),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => setState(() {
+                            _sortByEnte = !_sortByEnte;
+                            _sort();
+                          }),
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  _sortByEnte
+                                      ? Icons.calendar_month
+                                      : Icons.business,
+                                  size: 22,
+                                  color: const Color(0xFFF08A5D),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _sortByEnte ? 'Date' : 'Enti',
+                                  style: const TextStyle(
+                                    color: Color(0xFFF08A5D),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              )
+            : null,
       ),
     );
   }
