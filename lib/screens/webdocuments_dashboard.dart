@@ -37,84 +37,22 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
     super.dispose();
   }
 
-  void _showExtractedText(String text) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Testo estratto'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: SelectableText(text, style: const TextStyle(fontSize: 14)),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Chiudi'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showExtractedData(
     Map<String, String> data,
     List<int> bytes,
     String fileName,
   ) {
-    final descCtl = TextEditingController(text: data['description'] ?? '');
-    final dateCtl = TextEditingController(text: data['documentDate'] ?? '');
-    final enteCtl = TextEditingController(text: data['ente'] ?? '');
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Dati estratti con AI'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: descCtl,
-              decoration: const InputDecoration(labelText: 'Descrizione'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: dateCtl,
-              decoration: const InputDecoration(labelText: 'Data (YYYY-MM-DD)'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: enteCtl,
-              decoration: const InputDecoration(labelText: 'Ente'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annulla'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _extractCtrl
-                  .uploadWithData(
-                    description: descCtl.text,
-                    documentDate: dateCtl.text,
-                    enteNome: enteCtl.text,
-                    bytes: bytes,
-                    fileName: fileName,
-                  )
-                  .then((_) {
-                    _ctrl.load();
-                  });
-            },
-            child: const Text('Crea documento'),
-          ),
-        ],
-      ),
-    );
+    _extractCtrl
+        .uploadWithData(
+          description: data['description'] ?? '',
+          documentDate: data['documentDate'] ?? '',
+          enteNome: data['ente'] ?? '',
+          bytes: bytes,
+          fileName: fileName,
+        )
+        .then((_) {
+          _ctrl.load();
+        });
   }
 
   @override
@@ -135,7 +73,6 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
         ),
         body: DashboardBody(ctrl: _ctrl, isMobile: isMobile),
         floatingActionButton: DashboardExtractFab(
-          onTextExtracted: _showExtractedText,
           onDataExtracted: _showExtractedData,
         ),
         bottomNavigationBar: isMobile
