@@ -13,8 +13,21 @@ class DashboardController extends ChangeNotifier {
   List<dynamic> docs = [];
   bool loading = true;
   String? error;
+  String _searchQuery = '';
+  final TextEditingController searchController = TextEditingController();
 
   WebDocumentsService get svc => _svc;
+
+  List<dynamic> get filteredDocs {
+    if (_searchQuery.isEmpty) return docs;
+    return docs
+        .where(
+          (d) => '${d['description'] ?? ''} ${d['fileName'] ?? ''}'
+              .toLowerCase()
+              .contains(_searchQuery),
+        )
+        .toList();
+  }
 
   Future<void> load() async {
     loading = true;
@@ -26,6 +39,11 @@ class DashboardController extends ChangeNotifier {
       error = 'Errore nel caricamento';
     }
     loading = false;
+    notifyListeners();
+  }
+
+  void search(String query) {
+    _searchQuery = query.toLowerCase();
     notifyListeners();
   }
 

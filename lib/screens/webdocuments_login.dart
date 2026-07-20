@@ -4,6 +4,7 @@ import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
 import 'package:flutter/foundation.dart';
 import 'package:webdocuments/dev_credentials.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WebDocumentsLogin extends StatefulWidget {
   const WebDocumentsLogin({super.key});
@@ -12,17 +13,38 @@ class WebDocumentsLogin extends StatefulWidget {
 }
 
 class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
-  final _emailController = TextEditingController(
-    text: kDebugMode ? DevCredentials.email : '',
-  );
-  final _passwordController = TextEditingController(
-    text: kDebugMode ? DevCredentials.password : '',
-  );
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _service = WebDocumentsService();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  bool _rememberMe = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('saved_email');
+    final savedPassword = prefs.getString('saved_password');
+    final rememberMe = prefs.getBool('remember_me') ?? false;
+    if (rememberMe && savedEmail != null) {
+      _emailController.text = savedEmail;
+      _passwordController.text = savedPassword ?? '';
+      _rememberMe = true;
+      if (mounted) {
+        setState(() {});
+      }
+    } else if (kDebugMode) {
+      _emailController.text = DevCredentials.email;
+      _passwordController.text = DevCredentials.password;
+    }
+  }
 
   @override
   void dispose() {
@@ -52,10 +74,22 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
         return;
       }
 
+      final prefs = await SharedPreferences.getInstance();
+      if (_rememberMe) {
+        await prefs.setString('saved_email', _emailController.text.trim());
+        await prefs.setString('saved_password', _passwordController.text);
+        await prefs.setBool('remember_me', true);
+      } else {
+        await prefs.remove('saved_email');
+        await prefs.remove('saved_password');
+        await prefs.setBool('remember_me', false);
+      }
+
       final roleData = await _service.getMyRole();
       String userRole = roleData['role'] ?? 'USER';
-
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -151,11 +185,32 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                                 ),
                               ),
                             ),
-                            validator: (v) => v == null || v.isEmpty
-                                ? 'Inserisci password'
-                                : null,
+                            validator: (v) {
+                              if (v == null || v.isEmpty) {
+                                return 'Inserisci password';
+                              }
+                              return null;
+                            },
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _rememberMe,
+                                onChanged: (v) =>
+                                    setState(() => _rememberMe = v ?? false),
+                              ),
+                              GestureDetector(
+                                onTap: () =>
+                                    setState(() => _rememberMe = !_rememberMe),
+                                child: Text(
+                                  'Ricordami',
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
                           if (_errorMessage != null)
                             Padding(
                               padding: const EdgeInsets.only(bottom: 16),

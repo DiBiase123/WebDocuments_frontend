@@ -7,12 +7,19 @@ import 'package:webdocuments/screens/widgets/widgets_dashboard/dashboard_documen
 class DashboardBody extends StatelessWidget {
   final DashboardController ctrl;
   final bool isMobile;
+  final ScrollController scrollController;
 
-  const DashboardBody({super.key, required this.ctrl, required this.isMobile});
+  const DashboardBody({
+    super.key,
+    required this.ctrl,
+    required this.isMobile,
+    required this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final docs = ctrl.filteredDocs;
     return Column(
       children: [
         Padding(
@@ -97,7 +104,7 @@ class DashboardBody extends StatelessWidget {
                     ],
                   ),
                 )
-              : ctrl.docs.isEmpty
+              : docs.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -119,10 +126,12 @@ class DashboardBody extends StatelessWidget {
                   ),
                 )
               : ListView.builder(
+                  controller: scrollController,
                   padding: const EdgeInsets.all(16),
-                  itemCount: ctrl.docs.length,
+                  itemCount: docs.length,
                   itemBuilder: (_, i) => DashboardDocumentCard(
-                    doc: ctrl.docs[i],
+                    doc: docs[i],
+                    isMobile: isMobile,
                     onPreview: ctrl.openPdf,
                     onDownload: ctrl.downloadPdf,
                     onEdit: ctrl.edit,

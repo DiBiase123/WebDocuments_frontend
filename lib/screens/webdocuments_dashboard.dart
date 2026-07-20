@@ -20,6 +20,9 @@ class WebDocumentsDashboard extends StatefulWidget {
 class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
   final _ctrl = DashboardController();
   final _extractCtrl = ExtractController();
+  final _scrollCtl = ScrollController();
+  bool _showAppBar = true;
+  double _lastOffset = 0;
 
   @override
   void initState() {
@@ -28,12 +31,23 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       if (mounted) setState(() {});
     });
     _ctrl.load();
+    _scrollCtl.addListener(() {
+      final o = _scrollCtl.offset;
+      if (o <= 0) {
+        if (!_showAppBar) setState(() => _showAppBar = true);
+      } else if ((o > _lastOffset && o > 70 && _showAppBar) ||
+          (o < _lastOffset && !_showAppBar)) {
+        setState(() => _showAppBar = !_showAppBar);
+      }
+      _lastOffset = o;
+    });
   }
 
   @override
   void dispose() {
     _ctrl.dispose();
     _extractCtrl.dispose();
+    _scrollCtl.dispose();
     super.dispose();
   }
 
@@ -62,16 +76,20 @@ class _WebDocumentsDashboardState extends State<WebDocumentsDashboard> {
       allowedRoles: ['ADMIN', 'SUPER_ADMIN'],
       child: Scaffold(
         appBar: AnimatedAppBar(
-          visible: true,
+          visible: _showAppBar,
           child: DashboardAppBar(
             onUpload: _ctrl.upload,
             service: _ctrl.svc,
-            searchController: TextEditingController(),
-            onSearch: (v) {},
+            searchController: _ctrl.searchController,
+            onSearch: _ctrl.search,
             isMobile: isMobile,
           ),
         ),
-        body: DashboardBody(ctrl: _ctrl, isMobile: isMobile),
+        body: DashboardBody(
+          ctrl: _ctrl,
+          isMobile: isMobile,
+          scrollController: _scrollCtl,
+        ),
         floatingActionButton: DashboardExtractFab(
           onDataExtracted: _showExtractedData,
         ),
