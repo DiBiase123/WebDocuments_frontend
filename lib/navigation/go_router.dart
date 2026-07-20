@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/verify_email_screen.dart';
 import 'package:webdocuments/screens/webdocuments_users.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
@@ -14,6 +15,12 @@ final goRouter = GoRouter(
       path: '/webdocuments',
       name: 'webdocuments',
       builder: (context, state) => const WebDocumentsLogin(),
+    ),
+    GoRoute(
+      path: '/verify-email/:token',
+      name: 'verify-email',
+      builder: (context, state) =>
+          VerifyEmailScreen(token: state.pathParameters['token']!),
     ),
     GoRoute(
       path: '/webdocuments/list',

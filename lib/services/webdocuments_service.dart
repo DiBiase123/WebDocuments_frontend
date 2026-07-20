@@ -25,6 +25,31 @@ class WebDocumentsService {
     };
   }
 
+  Future<void> register(String username, String email, String password) async {
+    try {
+      final r = await _dio.post(
+        '/api/auth/register',
+        data: {'username': username, 'email': email, 'password': password},
+      );
+      if (r.data['success'] != true) {
+        throw Exception(r.data['message'] ?? 'Registrazione fallita');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['message'] ?? 'Errore di connessione');
+    }
+  }
+
+  Future<void> verifyEmail(String token) async {
+    try {
+      final r = await _dio.get('/api/auth/verify-email/$token');
+      if (r.data['success'] != true) {
+        throw Exception(r.data['message'] ?? 'Verifica fallita');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['message'] ?? 'Errore di connessione');
+    }
+  }
+
   Future<List<dynamic>> getDocuments() async {
     try {
       final r = await _dio.get(

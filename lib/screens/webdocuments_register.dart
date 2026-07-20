@@ -1,56 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/screens/webdocuments_list.dart';
-import 'package:webdocuments/screens/webdocuments_dashboard.dart';
-import 'package:webdocuments/screens/webdocuments_register.dart';
-import 'package:flutter/foundation.dart';
-import 'package:webdocuments/dev_credentials.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webdocuments/screens/webdocuments_login.dart';
 
-class WebDocumentsLogin extends StatefulWidget {
-  const WebDocumentsLogin({super.key});
+class WebDocumentsRegister extends StatefulWidget {
+  const WebDocumentsRegister({super.key});
   @override
-  State<WebDocumentsLogin> createState() => _WebDocumentsLoginState();
+  State<WebDocumentsRegister> createState() => _WebDocumentsRegisterState();
 }
 
-class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _WebDocumentsRegisterState extends State<WebDocumentsRegister> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _service = WebDocumentsService();
-  bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _rememberMe = false;
+  bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
   String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedCredentials();
-  }
-
-  Future<void> _loadSavedCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedEmail = prefs.getString('saved_email');
-    final savedPassword = prefs.getString('saved_password');
-    final rememberMe = prefs.getBool('remember_me') ?? false;
-    if (rememberMe && savedEmail != null) {
-      _emailController.text = savedEmail;
-      _passwordController.text = savedPassword ?? '';
-      _rememberMe = true;
-      if (mounted) {
-        setState(() {});
-      }
-    } else if (kDebugMode) {
-      _emailController.text = DevCredentials.email;
-      _passwordController.text = DevCredentials.password;
-    }
-  }
 
   @override
   void dispose() {
     _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -58,7 +33,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
   ).hasMatch(email);
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -67,38 +42,15 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
       _errorMessage = null;
     });
     try {
-      await _service.login(
+      await _service.register(
+        _usernameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text,
       );
       if (!mounted) {
         return;
       }
-
-      final prefs = await SharedPreferences.getInstance();
-      if (_rememberMe) {
-        await prefs.setString('saved_email', _emailController.text.trim());
-        await prefs.setString('saved_password', _passwordController.text);
-        await prefs.setBool('remember_me', true);
-      } else {
-        await prefs.remove('saved_email');
-        await prefs.remove('saved_password');
-        await prefs.setBool('remember_me', false);
-      }
-
-      final roleData = await _service.getMyRole();
-      String userRole = roleData['role'] ?? 'USER';
-      if (!mounted) {
-        return;
-      }
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => userRole == 'ADMIN' || userRole == 'SUPER_ADMIN'
-              ? const WebDocumentsDashboard()
-              : const WebDocumentsList(),
-        ),
-      );
+      _showVerificationDialog(_emailController.text.trim());
     } catch (e) {
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -110,6 +62,57 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
         });
       }
     }
+  }
+
+  void _showVerificationDialog(String email) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text('Registrazione completata!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.mark_email_unread, size: 70, color: Colors.blue),
+            const SizedBox(height: 20),
+            const Text('Abbiamo inviato un\'email di verifica a:'),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.withAlpha(30),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(email, textAlign: TextAlign.center),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Controlla la tua casella email e clicca sul link di verifica.',
+            ),
+            const SizedBox(height: 15),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withAlpha(30),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('Controlla anche la cartella SPAM'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
+              );
+            },
+            child: const Text('HO CAPITO'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -133,9 +136,9 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.lock_outline,
+                            Icons.person_add,
                             size: 80,
-                            color: theme.colorScheme.primary,
+                            color: theme.colorScheme.secondary,
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -144,7 +147,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Area riservata',
+                            'Crea il tuo account',
                             style: theme.textTheme.bodySmall,
                           ),
                           const SizedBox(height: 40),
@@ -168,10 +171,27 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
+                            controller: _usernameController,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Username',
+                              prefixIcon: Icon(Icons.person_outline),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) {
+                                return 'Inserisci username';
+                              }
+                              if (v.trim().length < 3) {
+                                return 'Minimo 3 caratteri';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _login(),
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               labelText: 'Password',
                               prefixIcon: const Icon(Icons.lock_outline),
@@ -190,28 +210,44 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                               if (v == null || v.isEmpty) {
                                 return 'Inserisci password';
                               }
+                              if (v.length < 8) {
+                                return 'Minimo 8 caratteri';
+                              }
                               return null;
                             },
                           ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: _rememberMe,
-                                onChanged: (v) =>
-                                    setState(() => _rememberMe = v ?? false),
-                              ),
-                              GestureDetector(
-                                onTap: () =>
-                                    setState(() => _rememberMe = !_rememberMe),
-                                child: Text(
-                                  'Ricordami',
-                                  style: theme.textTheme.bodySmall,
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: _obscureConfirmPassword,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _register(),
+                            decoration: InputDecoration(
+                              labelText: 'Conferma password',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureConfirmPassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () => setState(
+                                  () => _obscureConfirmPassword =
+                                      !_obscureConfirmPassword,
                                 ),
                               ),
-                            ],
+                            ),
+                            validator: (v) {
+                              if (v == null || v.isEmpty) {
+                                return 'Conferma password';
+                              }
+                              if (v != _passwordController.text) {
+                                return 'Le password non coincidono';
+                              }
+                              return null;
+                            },
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 24),
                           if (_errorMessage != null)
                             Padding(
                               padding: const EdgeInsets.only(bottom: 16),
@@ -227,7 +263,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: _isLoading ? null : _login,
+                              onPressed: _isLoading ? null : _register,
                               child: _isLoading
                                   ? const SizedBox(
                                       height: 24,
@@ -236,7 +272,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Text('ENTRA'),
+                                  : const Text('REGISTRATI'),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -244,7 +280,7 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Non hai un account? ',
+                                'Hai già un account? ',
                                 style: theme.textTheme.bodySmall,
                               ),
                               GestureDetector(
@@ -252,11 +288,11 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                         builder: (_) =>
-                                            const WebDocumentsRegister(),
+                                            const WebDocumentsLogin(),
                                       ),
                                     ),
                                 child: Text(
-                                  'Registrati',
+                                  'Accedi',
                                   style: TextStyle(
                                     color: theme.colorScheme.secondary,
                                     fontSize: 20,
