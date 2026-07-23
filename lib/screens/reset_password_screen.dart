@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String token;
@@ -50,6 +51,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         _isLoading = false;
         _isSuccess = true;
       });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('saved_password', _passwordController.text);
+      await prefs.setBool('reset_done', true);
+
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           Navigator.of(context).pushReplacement(

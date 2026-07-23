@@ -213,11 +213,14 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                                   context: context,
                                   builder: (_) => const ForgotPasswordDialog(),
                                 ),
-                                child: Text(
-                                  'Password dimenticata?',
-                                  style: TextStyle(
-                                    color: theme.colorScheme.secondary,
-                                    fontSize: 16,
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: Text(
+                                    'Password dimenticata?',
+                                    style: TextStyle(
+                                      color: theme.colorScheme.secondary,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ),
                               ),
