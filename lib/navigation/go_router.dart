@@ -1,12 +1,12 @@
 import 'package:go_router/go_router.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
-import 'package:webdocuments/screens/verify_email_screen.dart';
+import 'package:webdocuments/screens/webdocuments_verify_email.dart';
 import 'package:webdocuments/screens/webdocuments_users.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
 import 'package:webdocuments/screens/widgets/widgets_extract/extract_controller.dart';
-import 'package:webdocuments/screens/reset_password_screen.dart';
+import 'package:webdocuments/screens/webdocuments_reset_password.dart';
 
 final goRouter = GoRouter(
   navigatorKey: ExtractController.navigatorKey,
