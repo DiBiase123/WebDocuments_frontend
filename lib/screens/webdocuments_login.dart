@@ -32,6 +32,11 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
 
   Future<void> _loadSavedCredentials() async {
     final prefs = await SharedPreferences.getInstance();
+    final resetDone = prefs.getBool('reset_done') ?? false;
+    if (resetDone) {
+      await prefs.setBool('reset_done', false);
+      await prefs.setBool('remember_me', true);
+    }
     final savedEmail = prefs.getString('saved_email');
     final savedPassword = prefs.getString('saved_password');
     final rememberMe = prefs.getBool('remember_me') ?? false;
