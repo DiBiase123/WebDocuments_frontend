@@ -31,11 +31,16 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
       content: _ctrl.isSuccess
           ? Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.check_circle, size: 60, color: Colors.green),
-                const SizedBox(height: 16),
-                const Text('Email inviata! Controlla la tua casella.'),
+              children: const [
+                Icon(Icons.check_circle, size: 60, color: Colors.green),
+                SizedBox(height: 16),
+                Text('Email inviata!'),
               ],
+            )
+          : _ctrl.isLoading
+          ? const SizedBox(
+              height: 100,
+              child: Center(child: CircularProgressIndicator()),
             )
           : Form(
               key: _ctrl.formKey,
@@ -70,7 +75,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 ],
               ),
             ),
-      actions: _ctrl.isSuccess
+      actions: _ctrl.isLoading
+          ? null
+          : _ctrl.isSuccess
           ? [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -83,7 +90,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 child: const Text('Annulla'),
               ),
               ElevatedButton(
-                onPressed: _ctrl.isLoading ? null : () => _ctrl.submit(),
+                onPressed: () => _ctrl.submit(),
                 child: const Text('Invia'),
               ),
             ],

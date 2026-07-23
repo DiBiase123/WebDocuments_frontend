@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webdocuments/screens/webdocuments_login.dart';
 import 'package:webdocuments/screens/widgets/widgets_common/common_auth_form_wrapper.dart';
 import 'package:webdocuments/screens/widgets/widgets_reset/reset_controller.dart';
 import 'package:webdocuments/screens/widgets/widgets_reset/reset_validators.dart';
@@ -31,6 +32,18 @@ class _WebDocumentsResetPasswordState extends State<WebDocumentsResetPassword> {
 
   @override
   Widget build(BuildContext context) {
+    if (_ctrl.isSuccess) {
+      final navigator = Navigator.of(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            navigator.pushReplacement(
+              MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
+            );
+          }
+        });
+      });
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Reimposta Password')),
       body: AuthFormWrapper(
@@ -41,6 +54,8 @@ class _WebDocumentsResetPasswordState extends State<WebDocumentsResetPassword> {
                   Icon(Icons.check_circle, size: 80, color: Colors.green),
                   SizedBox(height: 20),
                   Text('Password reimpostata!'),
+                  SizedBox(height: 20),
+                  CircularProgressIndicator(),
                 ],
               )
             : Form(
