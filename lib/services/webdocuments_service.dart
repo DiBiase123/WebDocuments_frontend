@@ -50,6 +50,38 @@ class WebDocumentsService {
     }
   }
 
+  Future<void> forgotPassword(String email) async {
+    try {
+      final r = await _dio.post(
+        '/api/auth/forgot-password',
+        data: {'email': email},
+      );
+      if (r.data['success'] != true) {
+        throw Exception(r.data['message'] ?? 'Errore');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['message'] ?? 'Errore di connessione');
+    }
+  }
+
+  Future<void> resetPassword(
+    String token,
+    String password,
+    String confirmPassword,
+  ) async {
+    try {
+      final r = await _dio.post(
+        '/api/auth/reset-password/$token',
+        data: {'password': password, 'confirmPassword': confirmPassword},
+      );
+      if (r.data['success'] != true) {
+        throw Exception(r.data['message'] ?? 'Errore');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['message'] ?? 'Errore di connessione');
+    }
+  }
+
   Future<List<dynamic>> getDocuments() async {
     try {
       final r = await _dio.get(

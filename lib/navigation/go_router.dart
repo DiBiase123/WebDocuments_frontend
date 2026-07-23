@@ -6,6 +6,7 @@ import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
 import 'package:webdocuments/screens/widgets/widgets_extract/extract_controller.dart';
+import 'package:webdocuments/screens/reset_password_screen.dart';
 
 final goRouter = GoRouter(
   navigatorKey: ExtractController.navigatorKey,
@@ -41,6 +42,12 @@ final goRouter = GoRouter(
       path: '/webdocuments/users',
       name: 'webdocuments-users',
       builder: (context, state) => const WebDocumentsUsers(),
+    ),
+    GoRoute(
+      path: '/reset-password/:token',
+      name: 'reset-password',
+      builder: (context, state) =>
+          ResetPasswordScreen(token: state.pathParameters['token']!),
     ),
   ],
 );

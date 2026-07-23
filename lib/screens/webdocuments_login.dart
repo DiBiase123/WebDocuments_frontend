@@ -3,6 +3,7 @@ import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
 import 'package:webdocuments/screens/webdocuments_register.dart';
+import 'package:webdocuments/screens/widgets/forgot_password_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:webdocuments/dev_credentials.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -186,12 +187,9 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                                 ),
                               ),
                             ),
-                            validator: (v) {
-                              if (v == null || v.isEmpty) {
-                                return 'Inserisci password';
-                              }
-                              return null;
-                            },
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? 'Inserisci password'
+                                : null,
                           ),
                           const SizedBox(height: 12),
                           Row(
@@ -207,6 +205,20 @@ class _WebDocumentsLoginState extends State<WebDocumentsLogin> {
                                 child: Text(
                                   'Ricordami',
                                   style: theme.textTheme.bodySmall,
+                                ),
+                              ),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () => showDialog(
+                                  context: context,
+                                  builder: (_) => const ForgotPasswordDialog(),
+                                ),
+                                child: Text(
+                                  'Password dimenticata?',
+                                  style: TextStyle(
+                                    color: theme.colorScheme.secondary,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ],

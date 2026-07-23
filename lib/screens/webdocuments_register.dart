@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
+import 'package:webdocuments/screens/widgets/register_success_dialog.dart';
 
 class WebDocumentsRegister extends StatefulWidget {
   const WebDocumentsRegister({super.key});
@@ -68,50 +69,7 @@ class _WebDocumentsRegisterState extends State<WebDocumentsRegister> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        title: const Text('Registrazione completata!'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.mark_email_unread, size: 70, color: Colors.blue),
-            const SizedBox(height: 20),
-            const Text('Abbiamo inviato un\'email di verifica a:'),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.withAlpha(30),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(email, textAlign: TextAlign.center),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Controlla la tua casella email e clicca sul link di verifica.',
-            ),
-            const SizedBox(height: 15),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withAlpha(30),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text('Controlla anche la cartella SPAM'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const WebDocumentsLogin()),
-              );
-            },
-            child: const Text('HO CAPITO'),
-          ),
-        ],
-      ),
+      builder: (_) => RegisterSuccessDialog(email: email),
     );
   }
 
