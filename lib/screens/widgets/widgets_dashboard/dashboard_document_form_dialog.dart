@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/screens/widgets/document_form_body.dart';
+import 'package:webdocuments/screens/widgets/widgets_dashboard/dashboard_document_form_body.dart';
 
 class DocumentFormDialog extends StatefulWidget {
   final String? initialDescription, initialDate;

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:webdocuments/services/auth_guard.dart';
+import 'package:webdocuments/services/webdocuments_auth_guard.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
 import 'package:webdocuments/screens/webdocuments_users.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
-import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_animated_app_bar.dart';
 import 'package:webdocuments/screens/widgets/widgets_dashboard/dashboard_controller.dart';
 import 'package:webdocuments/screens/widgets/widgets_dashboard/dashboard_app_bar.dart';
 import 'package:webdocuments/screens/widgets/widgets_dashboard/dashboard_footer.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/services/auth_guard.dart';
-import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
+import 'package:webdocuments/services/webdocuments_auth_guard.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_animated_app_bar.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_desktop.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_app_bar_mobile.dart';
 import 'package:webdocuments/screens/widgets/widgets_enti/enti_list.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/screens/widgets/widgets_extract/extract_service.dart';
-import 'package:webdocuments/services/ai_service.dart';
+import 'package:webdocuments/services/webdocuments_ai.dart';
 
 typedef ExtractedDataCallback =
     void Function(Map<String, String> data, List<int> bytes, String fileName);

@@ -2,7 +2,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/screens/widgets/document_form_dialog.dart';
+import 'package:webdocuments/screens/widgets/widgets_dashboard/dashboard_document_form_dialog.dart';
 
 class ExtractController extends ChangeNotifier {
   final _svc = WebDocumentsService();

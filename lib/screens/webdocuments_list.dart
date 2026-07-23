@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:webdocuments/services/auth_storage.dart';
-import 'package:webdocuments/services/auth_guard.dart';
+import 'package:webdocuments/services/webdocuments_auth_storage.dart';
+import 'package:webdocuments/services/webdocuments_auth_guard.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/screens/widgets/animated_app_bar.dart';
-import 'package:webdocuments/screens/widgets/pdf_helper.dart';
-import 'package:webdocuments/screens/widgets/list_footer.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_animated_app_bar.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_pdf_helper.dart';
+import 'package:webdocuments/screens/widgets/widgets_list/list_footer.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_page_body.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_card_builder.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_app_bar_desktop.dart';

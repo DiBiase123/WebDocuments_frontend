@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
-import 'package:webdocuments/screens/widgets/auth_form_wrapper.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_auth_form_wrapper.dart';
 import 'package:webdocuments/screens/widgets/widgets_register/register_controller.dart';
 import 'package:webdocuments/screens/widgets/widgets_register/register_validators.dart';
 import 'package:webdocuments/screens/widgets/widgets_register/register_form_fields.dart';

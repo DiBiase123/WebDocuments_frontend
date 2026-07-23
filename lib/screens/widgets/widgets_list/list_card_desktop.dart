@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webdocuments/screens/widgets/ente_badge.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_ente_badge.dart';
 
 class DocumentCardDesktop extends StatelessWidget {
   final Map<String, dynamic> doc;

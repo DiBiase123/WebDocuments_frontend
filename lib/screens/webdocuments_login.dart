@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/screens/webdocuments_register.dart';
-import 'package:webdocuments/screens/widgets/auth_form_wrapper.dart';
-import 'package:webdocuments/screens/widgets/forgot_password_dialog.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_auth_form_wrapper.dart';
+import 'package:webdocuments/screens/widgets/widgets_forgot/forgot_password_dialog.dart';
 import 'package:webdocuments/screens/widgets/widgets_login/login_controller.dart';
 import 'package:webdocuments/screens/widgets/widgets_login/login_validators.dart';
 import 'package:webdocuments/screens/widgets/widgets_login/login_form_fields.dart';

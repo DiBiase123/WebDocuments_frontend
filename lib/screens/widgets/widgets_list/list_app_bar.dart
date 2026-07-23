@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webdocuments/screens/widgets/logout_button.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_logout_button.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 
 class ListAppBar extends StatelessWidget implements PreferredSizeWidget {

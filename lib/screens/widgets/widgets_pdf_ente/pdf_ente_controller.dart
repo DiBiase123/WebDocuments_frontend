@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:webdocuments/config.dart';
-import 'package:webdocuments/services/auth_storage.dart';
+import 'package:webdocuments/services/webdocuments_auth_storage.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
 
 class PdfEnteController extends ChangeNotifier {

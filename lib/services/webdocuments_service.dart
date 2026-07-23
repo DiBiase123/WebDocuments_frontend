@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:webdocuments/config.dart';
-import 'package:webdocuments/services/auth_storage.dart';
+import 'package:webdocuments/services/webdocuments_auth_storage.dart';
 
 class WebDocumentsService {
   final Dio _dio;

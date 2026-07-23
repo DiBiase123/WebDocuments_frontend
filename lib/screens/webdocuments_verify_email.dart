@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
 import 'package:webdocuments/screens/webdocuments_login.dart';
-import 'package:webdocuments/screens/widgets/auth_form_wrapper.dart';
+import 'package:webdocuments/screens/widgets/widgets_common/common_auth_form_wrapper.dart';
 
 class WebDocumentsVerifyEmail extends StatefulWidget {
   final String token;

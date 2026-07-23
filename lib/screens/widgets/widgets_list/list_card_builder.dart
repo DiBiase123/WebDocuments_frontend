@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:webdocuments/screens/widgets/document_card_mobile.dart';
-import 'package:webdocuments/screens/widgets/document_card_desktop.dart';
+import 'package:webdocuments/screens/widgets/widgets_list/list_document_card_mobile.dart';
+import 'package:webdocuments/screens/widgets/widgets_list/list_card_desktop.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_helpers.dart';
 
 class ListCardBuilder {
