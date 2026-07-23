@@ -5,8 +5,8 @@ import 'package:webdocuments/screens/webdocuments_users.dart';
 import 'package:webdocuments/screens/webdocuments_list.dart';
 import 'package:webdocuments/screens/webdocuments_enti.dart';
 import 'package:webdocuments/screens/webdocuments_dashboard.dart';
-import 'package:webdocuments/screens/widgets/widgets_extract/extract_controller.dart';
 import 'package:webdocuments/screens/webdocuments_reset_password.dart';
+import 'package:webdocuments/screens/widgets/widgets_extract/extract_controller.dart';
 
 final goRouter = GoRouter(
   navigatorKey: ExtractController.navigatorKey,
@@ -21,7 +21,7 @@ final goRouter = GoRouter(
       path: '/verify-email/:token',
       name: 'verify-email',
       builder: (context, state) =>
-          VerifyEmailScreen(token: state.pathParameters['token']!),
+          WebDocumentsVerifyEmail(token: state.pathParameters['token']!),
     ),
     GoRoute(
       path: '/webdocuments/list',
@@ -47,7 +47,7 @@ final goRouter = GoRouter(
       path: '/reset-password/:token',
       name: 'reset-password',
       builder: (context, state) =>
-          ResetPasswordScreen(token: state.pathParameters['token']!),
+          WebDocumentsResetPassword(token: state.pathParameters['token']!),
     ),
   ],
 );
