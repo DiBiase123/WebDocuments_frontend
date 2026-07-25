@@ -2,16 +2,26 @@ import 'package:flutter/material.dart';
 
 class AnimatedAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool visible;
+  final double opacity;
   final Widget child;
 
-  const AnimatedAppBar({super.key, required this.visible, required this.child});
+  const AnimatedAppBar({
+    super.key,
+    required this.visible,
+    this.opacity = 1.0,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      height: visible ? null : 0,
-      child: visible ? child : const SizedBox.shrink(),
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 150),
+      opacity: visible ? opacity : 0.0,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        height: visible ? null : 0,
+        child: visible ? child : const SizedBox.shrink(),
+      ),
     );
   }
 

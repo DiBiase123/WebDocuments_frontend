@@ -35,7 +35,9 @@ class ListPageBody extends StatefulWidget {
 
 class _ListPageBodyState extends State<ListPageBody> {
   double _titleFontSize = 36;
-  double _padding = 16;
+  double _paddingTop = 16;
+  double _paddingBottom = 8;
+  double _paddingHorizontal = 32;
 
   @override
   void initState() {
@@ -44,10 +46,12 @@ class _ListPageBodyState extends State<ListPageBody> {
       final offset = widget.scrollController.offset;
       final newSize = (36 - offset / 10).clamp(24.0, 36.0);
       final newPad = (16 - offset / 10).clamp(8.0, 16.0);
-      if (newSize != _titleFontSize || newPad != _padding) {
+      if (newSize != _titleFontSize || newPad != _paddingTop) {
         setState(() {
           _titleFontSize = newSize;
-          _padding = newPad;
+          _paddingTop = newPad;
+          _paddingBottom = newPad;
+          _paddingHorizontal = newPad;
         });
       }
     });
@@ -59,7 +63,12 @@ class _ListPageBodyState extends State<ListPageBody> {
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 100),
-          padding: EdgeInsets.all(_padding),
+          padding: EdgeInsets.fromLTRB(
+            _paddingHorizontal,
+            _paddingTop,
+            _paddingHorizontal,
+            _paddingBottom,
+          ),
           child: Row(
             children: [
               Expanded(

@@ -140,6 +140,29 @@ class DocumentCardMobile extends StatelessWidget {
                   ),
                 ),
               ),
+              Expanded(
+                child: Tooltip(
+                  message: 'Condividi',
+                  child: InkWell(
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      decoration: BoxDecoration(
+                        color: Colors.white54.withAlpha(20),
+                        border: Border.all(
+                          color: Colors.white54.withAlpha(60),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.share,
+                        color: Colors.white54,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ],

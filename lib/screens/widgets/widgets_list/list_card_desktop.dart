@@ -93,6 +93,11 @@ class DocumentCardDesktop extends StatelessWidget {
                       onPressed: onDownload,
                       tooltip: 'Download',
                     ),
+                    IconButton(
+                      icon: const Icon(Icons.share, color: Colors.white54),
+                      onPressed: () {},
+                      tooltip: 'Condividi',
+                    ),
                   ],
                 ),
               ],

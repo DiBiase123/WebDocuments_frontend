@@ -25,12 +25,10 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   final _searchCtl = TextEditingController();
   final _scrollCtl = ScrollController();
   List<dynamic> _docs = [], _filtered = [];
-  bool _loading = true,
-      _showAppBar = true,
-      _isAdmin = false,
-      _ascending = false;
+  bool _loading = true, _isAdmin = false, _ascending = false;
   String? _error;
-  double _lastOffset = 0;
+  double _appBarOpacity = 1.0;
+
   late final ListCardBuilder _cardBuilder;
 
   @override
@@ -44,15 +42,12 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     _checkAdmin();
     _scrollCtl.addListener(() {
       final o = _scrollCtl.offset;
-      if (o <= 0) {
-        if (!_showAppBar) {
-          setState(() => _showAppBar = true);
-        }
-      } else if ((o > _lastOffset && o > 70 && _showAppBar) ||
-          (o < _lastOffset && !_showAppBar)) {
-        setState(() => _showAppBar = !_showAppBar);
+      double newOpacity = 1.0 - (o / 200);
+      if (newOpacity < 0.0) newOpacity = 0.0;
+      if (newOpacity > 1.0) newOpacity = 1.0;
+      if (newOpacity != _appBarOpacity) {
+        setState(() => _appBarOpacity = newOpacity);
       }
-      _lastOffset = o;
     });
   }
 
@@ -110,9 +105,6 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         () => _isAdmin = d['role'] == 'ADMIN' || d['role'] == 'SUPER_ADMIN',
       );
     }
-    if (!_showAppBar) {
-      setState(() => _showAppBar = true);
-    }
   }
 
   void _onSearch(String q) {
@@ -144,7 +136,8 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     return AuthGuard(
       child: Scaffold(
         appBar: AnimatedAppBar(
-          visible: _showAppBar,
+          visible: _appBarOpacity > 0,
+          opacity: _appBarOpacity,
           child: isMobile
               ? ListAppBarMobile(
                   searchController: _searchCtl,
