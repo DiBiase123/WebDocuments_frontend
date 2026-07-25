@@ -34,18 +34,24 @@ class ListPageBody extends StatefulWidget {
 }
 
 class _ListPageBodyState extends State<ListPageBody> {
-  double _titleFontSize = 36;
-  double _paddingTop = 16;
-  double _paddingBottom = 8;
-  double _paddingHorizontal = 32;
+  late double _titleFontSize;
+  late double _paddingTop;
+  late double _paddingBottom;
+  late double _paddingHorizontal;
+  late double _maxPad;
 
   @override
   void initState() {
     super.initState();
+    _maxPad = widget.isMobile ? 32.0 : 48.0;
+    _titleFontSize = 36;
+    _paddingTop = 16;
+    _paddingBottom = 8;
+    _paddingHorizontal = _maxPad;
     widget.scrollController.addListener(() {
       final offset = widget.scrollController.offset;
       final newSize = (36 - offset / 10).clamp(24.0, 36.0);
-      final newPad = (16 - offset / 10).clamp(8.0, 16.0);
+      final newPad = (_maxPad - offset / 10).clamp(8.0, _maxPad);
       if (newSize != _titleFontSize || newPad != _paddingTop) {
         setState(() {
           _titleFontSize = newSize;
@@ -69,6 +75,16 @@ class _ListPageBodyState extends State<ListPageBody> {
             _paddingHorizontal,
             _paddingBottom,
           ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Theme.of(context).scaffoldBackgroundColor,
+                Theme.of(context).scaffoldBackgroundColor.withAlpha(0),
+              ],
+            ),
+          ),
           child: Row(
             children: [
               Expanded(
@@ -79,8 +95,11 @@ class _ListPageBodyState extends State<ListPageBody> {
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFFEEEEEE),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Lista dei documenti :',
+                    textAlign: widget.isMobile
+                        ? TextAlign.center
+                        : TextAlign.start,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
