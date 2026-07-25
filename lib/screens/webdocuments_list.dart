@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webdocuments/services/webdocuments_auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_auth_guard.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
@@ -28,7 +29,6 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
   bool _loading = true, _isAdmin = false, _ascending = false;
   String? _error;
   double _appBarOpacity = 1.0;
-
   late final ListCardBuilder _cardBuilder;
 
   @override
@@ -38,6 +38,7 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
       onPreview: (d) => _pdf.open(d),
       onDownload: (d) => _pdf.download(d),
     );
+    _loadPreferences();
     _load();
     _checkAdmin();
     _scrollCtl.addListener(() {
@@ -49,6 +50,12 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         setState(() => _appBarOpacity = newOpacity);
       }
     });
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ascending = prefs.getBool('list_ascending') ?? false;
+    _ascending = ascending;
   }
 
   Future<void> _load() async {
@@ -82,12 +89,14 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
         : (b['documentDate'] ?? '').compareTo(a['documentDate'] ?? ''),
   );
 
-  void _toggleOrder() {
+  void _toggleOrder() async {
     setState(() {
       _ascending = !_ascending;
       _sort(_docs);
       _filtered = _docs;
     });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('list_ascending', _ascending);
   }
 
   Future<void> _checkAdmin() async {
@@ -98,12 +107,6 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     final p = a['token']!.split('.');
     if (p.length != 3) {
       return;
-    }
-    final d = jsonDecode(utf8.decode(base64.decode(base64.normalize(p[1]))));
-    if (mounted) {
-      setState(
-        () => _isAdmin = d['role'] == 'ADMIN' || d['role'] == 'SUPER_ADMIN',
-      );
     }
   }
 
