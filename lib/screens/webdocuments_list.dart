@@ -168,7 +168,6 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
           error: _error,
           documents: _filtered,
           isMobile: isMobile,
-          showAppBar: _showAppBar,
           ascending: _ascending,
           cardBuilder: _cardBuilder,
           scrollController: _scrollCtl,

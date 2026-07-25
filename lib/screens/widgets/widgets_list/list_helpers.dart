@@ -20,18 +20,18 @@ class ListHelpers {
     try {
       final d = DateTime.parse(s);
       const m = [
-        'Gen',
-        'Feb',
-        'Mar',
-        'Apr',
-        'Mag',
-        'Giu',
-        'Lug',
-        'Ago',
-        'Set',
-        'Ott',
-        'Nov',
-        'Dic',
+        'Gennaio',
+        'Febbraio',
+        'Marzo',
+        'Aprile',
+        'Maggio',
+        'Giugno',
+        'Luglio',
+        'Agosto',
+        'Settembre',
+        'Ottobre',
+        'Novembre',
+        'Dicembre',
       ];
       return '${m[d.month - 1]} ${d.year}';
     } catch (_) {

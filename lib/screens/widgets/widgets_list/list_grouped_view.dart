@@ -31,7 +31,11 @@ class ListGroupedView extends StatelessWidget {
           .add(d);
     }
     final months = grouped.keys.toList()
-      ..sort((a, b) => ascending ? a.compareTo(b) : b.compareTo(a));
+      ..sort((a, b) {
+        final dateA = grouped[a]!.first['documentDate'] ?? '';
+        final dateB = grouped[b]!.first['documentDate'] ?? '';
+        return ascending ? dateA.compareTo(dateB) : dateB.compareTo(dateA);
+      });
     return ListView.builder(
       controller: scrollController,
       padding: const EdgeInsets.all(16),

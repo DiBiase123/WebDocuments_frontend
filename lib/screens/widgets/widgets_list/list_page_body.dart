@@ -3,12 +3,11 @@ import 'package:webdocuments/screens/widgets/widgets_list/list_desktop_buttons.d
 import 'package:webdocuments/screens/widgets/widgets_list/list_grouped_view.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_card_builder.dart';
 
-class ListPageBody extends StatelessWidget {
+class ListPageBody extends StatefulWidget {
   final bool loading;
   final String? error;
   final List<dynamic> documents;
   final bool isMobile;
-  final bool showAppBar;
   final bool ascending;
   final ListCardBuilder cardBuilder;
   final ScrollController scrollController;
@@ -22,7 +21,6 @@ class ListPageBody extends StatelessWidget {
     this.error,
     required this.documents,
     required this.isMobile,
-    required this.showAppBar,
     required this.ascending,
     required this.cardBuilder,
     required this.scrollController,
@@ -32,52 +30,84 @@ class ListPageBody extends StatelessWidget {
   });
 
   @override
+  State<ListPageBody> createState() => _ListPageBodyState();
+}
+
+class _ListPageBodyState extends State<ListPageBody> {
+  double _titleFontSize = 36;
+  double _padding = 16;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.scrollController.addListener(() {
+      final offset = widget.scrollController.offset;
+      final newSize = (36 - offset / 10).clamp(24.0, 36.0);
+      final newPad = (16 - offset / 10).clamp(8.0, 16.0);
+      if (newSize != _titleFontSize || newPad != _padding) {
+        setState(() {
+          _titleFontSize = newSize;
+          _padding = newPad;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          padding: EdgeInsets.all(_padding),
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  'Lista dei documenti :',
-                  style: Theme.of(context).textTheme.titleLarge,
-                  overflow: TextOverflow.ellipsis,
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 100),
+                  style: TextStyle(
+                    fontSize: _titleFontSize,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFFEEEEEE),
+                  ),
+                  child: const Text(
+                    'Lista dei documenti :',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
-              if (!isMobile) ...[
+              if (!widget.isMobile) ...[
                 const SizedBox(width: 16),
                 ListDesktopButtons(
-                  docs: docs,
-                  ascending: ascending,
-                  onToggleOrder: onToggleOrder,
+                  docs: widget.docs,
+                  ascending: widget.ascending,
+                  onToggleOrder: widget.onToggleOrder,
                 ),
               ],
             ],
           ),
         ),
         Expanded(
-          child: loading
+          child: widget.loading
               ? const Center(child: CircularProgressIndicator())
-              : error != null
+              : widget.error != null
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        error!,
+                        widget.error!,
                         style: const TextStyle(color: Colors.redAccent),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: onRetry,
+                        onPressed: widget.onRetry,
                         child: const Text('Riprova'),
                       ),
                     ],
                   ),
                 )
-              : documents.isEmpty
+              : widget.documents.isEmpty
               ? const Center(
                   child: Text(
                     'Nessun documento',
@@ -85,11 +115,11 @@ class ListPageBody extends StatelessWidget {
                   ),
                 )
               : ListGroupedView(
-                  documents: documents,
-                  isMobile: isMobile,
-                  ascending: ascending,
-                  cardBuilder: cardBuilder,
-                  scrollController: scrollController,
+                  documents: widget.documents,
+                  isMobile: widget.isMobile,
+                  ascending: widget.ascending,
+                  cardBuilder: widget.cardBuilder,
+                  scrollController: widget.scrollController,
                 ),
         ),
       ],
