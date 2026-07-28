@@ -9,6 +9,7 @@ class ListGroupedView extends StatelessWidget {
   final bool ascending;
   final ListCardBuilder cardBuilder;
   final ScrollController scrollController;
+  final double titleHeight;
 
   const ListGroupedView({
     super.key,
@@ -17,6 +18,7 @@ class ListGroupedView extends StatelessWidget {
     required this.ascending,
     required this.cardBuilder,
     required this.scrollController,
+    required this.titleHeight,
   });
 
   @override
@@ -38,7 +40,12 @@ class ListGroupedView extends StatelessWidget {
       });
     return ListView.builder(
       controller: scrollController,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.only(
+        top: titleHeight,
+        left: 16,
+        right: 16,
+        bottom: 16,
+      ),
       itemCount: months.length,
       itemBuilder: (_, i) {
         final m = months[i];

@@ -17,6 +17,7 @@ class ListAppBarMobile extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      automaticallyImplyLeading: false,
       title: TextField(
         controller: searchController,
         onChanged: onSearch,

@@ -127,9 +127,6 @@ class DocumentCardMobile extends StatelessWidget {
                           color: Colors.greenAccent.withAlpha(60),
                           width: 1,
                         ),
-                        borderRadius: const BorderRadius.only(
-                          bottomRight: Radius.circular(12),
-                        ),
                       ),
                       child: const Icon(
                         Icons.download,
@@ -152,6 +149,9 @@ class DocumentCardMobile extends StatelessWidget {
                         border: Border.all(
                           color: Colors.white54.withAlpha(60),
                           width: 1,
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          bottomRight: Radius.circular(12),
                         ),
                       ),
                       child: const Icon(

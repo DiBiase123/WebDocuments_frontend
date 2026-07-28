@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_desktop_buttons.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_grouped_view.dart';
@@ -40,6 +41,7 @@ class _ListPageBodyState extends State<ListPageBody> {
   double _paddingHorizontal = 32;
   late double _maxPad;
 
+  double get _titleHeight => _titleFontSize + _paddingTop + _paddingBottom;
   @override
   void initState() {
     super.initState();
@@ -69,79 +71,107 @@ class _ListPageBodyState extends State<ListPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          padding: EdgeInsets.fromLTRB(
-            _paddingHorizontal,
-            _paddingTop,
-            _paddingHorizontal,
-            _paddingBottom,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Lista dei documenti :',
-                  key: ValueKey(_titleFontSize),
-                  textAlign: _titleFontSize < 36
-                      ? TextAlign.start
-                      : (widget.isMobile ? TextAlign.center : TextAlign.start),
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: _titleFontSize,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFFEEEEEE),
-                  ),
+    final listContent = widget.loading
+        ? const Center(child: CircularProgressIndicator())
+        : widget.error != null
+        ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.error!,
+                  style: const TextStyle(color: Colors.redAccent),
                 ),
-              ),
-              if (!widget.isMobile) ...[
-                const SizedBox(width: 16),
-                ListDesktopButtons(
-                  docs: widget.docs,
-                  ascending: widget.ascending,
-                  onToggleOrder: widget.onToggleOrder,
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: widget.onRetry,
+                  child: const Text('Riprova'),
                 ),
               ],
-            ],
+            ),
+          )
+        : widget.documents.isEmpty
+        ? const Center(
+            child: Text(
+              'Nessun documento',
+              style: TextStyle(color: Colors.white54, fontSize: 16),
+            ),
+          )
+        : ListGroupedView(
+            titleHeight: _titleHeight,
+            documents: widget.documents,
+            isMobile: widget.isMobile,
+            ascending: widget.ascending,
+            cardBuilder: widget.cardBuilder,
+            scrollController: widget.scrollController,
+          );
+
+    final bool showScrollbar =
+        !widget.loading && widget.error == null && widget.documents.isNotEmpty;
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Padding(
+            padding: EdgeInsets.only(top: _titleHeight),
+            child: showScrollbar
+                ? Scrollbar(
+                    controller: widget.scrollController,
+                    thumbVisibility: true,
+                    child: listContent,
+                  )
+                : listContent,
           ),
         ),
-        Expanded(
-          child: widget.loading
-              ? const Center(child: CircularProgressIndicator())
-              : widget.error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.error!,
-                        style: const TextStyle(color: Colors.redAccent),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                padding: EdgeInsets.fromLTRB(
+                  _paddingHorizontal,
+                  _paddingTop,
+                  _paddingHorizontal,
+                  _paddingBottom,
+                ),
+                color: Theme.of(context).scaffoldBackgroundColor.withAlpha(180),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Lista dei documenti :',
+                        key: ValueKey(_titleFontSize),
+                        textAlign: _titleFontSize < 36
+                            ? TextAlign.start
+                            : (widget.isMobile
+                                  ? TextAlign.center
+                                  : TextAlign.start),
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: _titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFFEEEEEE),
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: widget.onRetry,
-                        child: const Text('Riprova'),
+                    ),
+                    if (!widget.isMobile) ...[
+                      const SizedBox(width: 16),
+                      ListDesktopButtons(
+                        docs: widget.docs,
+                        ascending: widget.ascending,
+                        onToggleOrder: widget.onToggleOrder,
                       ),
                     ],
-                  ),
-                )
-              : widget.documents.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Nessun documento',
-                    style: TextStyle(color: Colors.white54, fontSize: 16),
-                  ),
-                )
-              : ListGroupedView(
-                  documents: widget.documents,
-                  isMobile: widget.isMobile,
-                  ascending: widget.ascending,
-                  cardBuilder: widget.cardBuilder,
-                  scrollController: widget.scrollController,
+                  ],
                 ),
+              ),
+            ),
+          ),
         ),
       ],
     );

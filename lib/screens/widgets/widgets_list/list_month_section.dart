@@ -5,12 +5,15 @@ class MonthSection extends StatefulWidget {
   final int docCount;
   final List<Widget> cards;
   final GlobalKey? sectionKey;
+  final VoidCallback? onToggle;
+
   const MonthSection({
     super.key,
     required this.month,
     required this.docCount,
     required this.cards,
     this.sectionKey,
+    this.onToggle,
   });
 
   @override
@@ -20,10 +23,19 @@ class MonthSection extends StatefulWidget {
 class _MonthSectionState extends State<MonthSection> {
   static final Map<String, bool> _openMap = {};
   bool get _open => _openMap[widget.month] ?? true;
+
   void _toggle() {
     setState(() {
       _openMap[widget.month] = !_open;
     });
+    widget.onToggle?.call();
+    if (_open && widget.sectionKey?.currentContext != null) {
+      Scrollable.ensureVisible(
+        widget.sectionKey!.currentContext!,
+        alignment: 0.1,
+        duration: const Duration(milliseconds: 400),
+      );
+    }
   }
 
   @override
@@ -41,16 +53,7 @@ class _MonthSectionState extends State<MonthSection> {
         child: Column(
           children: [
             InkWell(
-              onTap: () {
-                _toggle();
-                if (_open && widget.sectionKey?.currentContext != null) {
-                  Scrollable.ensureVisible(
-                    widget.sectionKey!.currentContext!,
-                    alignment: 0.1,
-                    duration: const Duration(milliseconds: 400),
-                  );
-                }
-              },
+              onTap: _toggle,
               borderRadius: BorderRadius.circular(10),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
