@@ -15,10 +15,12 @@ class AnimatedAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
       opacity: visible ? opacity : 0.0,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
         height: visible ? null : 0,
         child: visible ? child : const SizedBox.shrink(),
       ),

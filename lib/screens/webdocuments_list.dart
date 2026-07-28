@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webdocuments/services/webdocuments_auth_storage.dart';
 import 'package:webdocuments/services/webdocuments_auth_guard.dart';
 import 'package:webdocuments/services/webdocuments_service.dart';
-import 'package:webdocuments/screens/widgets/widgets_common/common_animated_app_bar.dart';
 import 'package:webdocuments/screens/widgets/widgets_common/common_pdf_helper.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_footer.dart';
 import 'package:webdocuments/screens/widgets/widgets_list/list_page_body.dart';
@@ -108,6 +107,12 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     if (p.length != 3) {
       return;
     }
+    final d = jsonDecode(utf8.decode(base64.decode(base64.normalize(p[1]))));
+    if (mounted) {
+      setState(
+        () => _isAdmin = d['role'] == 'ADMIN' || d['role'] == 'SUPER_ADMIN',
+      );
+    }
   }
 
   void _onSearch(String q) {
@@ -138,26 +143,33 @@ class _WebDocumentsListState extends State<WebDocumentsList> {
     final isMobile = MediaQuery.of(context).size.width < 600;
     return AuthGuard(
       child: Scaffold(
-        appBar: AnimatedAppBar(
-          visible: _appBarOpacity > 0,
-          opacity: _appBarOpacity,
-          child: isMobile
-              ? ListAppBarMobile(
-                  searchController: _searchCtl,
-                  onSearch: _onSearch,
-                  service: _svc,
-                )
-              : ListAppBarDesktop(
-                  searchController: _searchCtl,
-                  onSearch: _onSearch,
-                  isAdmin: _isAdmin,
-                  onDashboard: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const WebDocumentsDashboard(),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(70 * _appBarOpacity),
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            opacity: _appBarOpacity,
+            child: SizedBox(
+              height: 70,
+              child: isMobile
+                  ? ListAppBarMobile(
+                      searchController: _searchCtl,
+                      onSearch: _onSearch,
+                      service: _svc,
+                    )
+                  : ListAppBarDesktop(
+                      searchController: _searchCtl,
+                      onSearch: _onSearch,
+                      isAdmin: _isAdmin,
+                      onDashboard: () => Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) => const WebDocumentsDashboard(),
+                        ),
+                      ),
+                      service: _svc,
                     ),
-                  ),
-                  service: _svc,
-                ),
+            ),
+          ),
         ),
         body: ListPageBody(
           loading: _loading,

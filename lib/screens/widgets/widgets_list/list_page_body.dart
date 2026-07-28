@@ -34,28 +34,32 @@ class ListPageBody extends StatefulWidget {
 }
 
 class _ListPageBodyState extends State<ListPageBody> {
-  late double _titleFontSize;
-  late double _paddingTop;
-  late double _paddingBottom;
-  late double _paddingHorizontal;
+  double _titleFontSize = 36;
+  final double _paddingTop = 24;
+  double _paddingBottom = 16;
+  double _paddingHorizontal = 32;
   late double _maxPad;
 
   @override
   void initState() {
     super.initState();
     _maxPad = widget.isMobile ? 32.0 : 48.0;
-    _titleFontSize = 36;
-    _paddingTop = 16;
-    _paddingBottom = 8;
     _paddingHorizontal = _maxPad;
     widget.scrollController.addListener(() {
       final offset = widget.scrollController.offset;
+      if (offset <= 0) {
+        setState(() {
+          _titleFontSize = 36;
+          _paddingBottom = 16;
+          _paddingHorizontal = _maxPad;
+        });
+        return;
+      }
       final newSize = (36 - offset / 10).clamp(24.0, 36.0);
-      final newPad = (_maxPad - offset / 10).clamp(8.0, _maxPad);
-      if (newSize != _titleFontSize || newPad != _paddingTop) {
+      final newPad = (_maxPad - offset / 10).clamp(16.0, _maxPad);
+      if (newSize != _titleFontSize || newPad != _paddingBottom) {
         setState(() {
           _titleFontSize = newSize;
-          _paddingTop = newPad;
           _paddingBottom = newPad;
           _paddingHorizontal = newPad;
         });
@@ -68,39 +72,28 @@ class _ListPageBodyState extends State<ListPageBody> {
     return Column(
       children: [
         AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
           padding: EdgeInsets.fromLTRB(
             _paddingHorizontal,
             _paddingTop,
             _paddingHorizontal,
             _paddingBottom,
           ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(context).scaffoldBackgroundColor,
-                Theme.of(context).scaffoldBackgroundColor.withAlpha(0),
-              ],
-            ),
-          ),
           child: Row(
             children: [
               Expanded(
-                child: AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 100),
+                child: Text(
+                  'Lista dei documenti :',
+                  key: ValueKey(_titleFontSize),
+                  textAlign: _titleFontSize < 36
+                      ? TextAlign.start
+                      : (widget.isMobile ? TextAlign.center : TextAlign.start),
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: _titleFontSize,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFFEEEEEE),
-                  ),
-                  child: Text(
-                    'Lista dei documenti :',
-                    textAlign: widget.isMobile
-                        ? TextAlign.center
-                        : TextAlign.start,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
